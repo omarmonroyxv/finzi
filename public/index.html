@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finzi - Tu dinero puede crecer más</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        * { font-family: 'Inter', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15); }
+        .option-card { transition: all 0.3s ease; border: 2px solid transparent; }
+        .option-card:hover { border-color: #667eea; transform: scale(1.02); }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-slide-in { animation: slideIn 0.5s ease-out; }
+        .loading { border: 3px solid #f3f3f3; border-top: 3px solid #667eea; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <nav class="gradient-bg text-white shadow-lg">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20"><path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"/></svg>
+                    <h1 class="text-2xl font-bold">Finzi</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="btnLogin" class="px-4 py-2 rounded-lg hover:bg-white/10 transition">Iniciar Sesión</button>
+                    <button id="btnRegistro" class="px-4 py-2 bg-white text-purple-600 rounded-lg font-semibold hover:bg-gray-100 transition">Registrarse</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <section class="gradient-bg text-white py-20">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-5xl font-bold mb-6 animate-slide-in">Tu dinero puede crecer más 🚀</h2>
+            <p class="text-xl mb-8 opacity-90 animate-slide-in">Compara las mejores opciones de ahorro e inversión en México.<br>Sin comisiones ocultas. Desde $100 MXN.</p>
+            <button id="btnScrollComparador" class="bg-white text-purple-600 px-8 py-4 rounded-full font-bold text-lg hover:bg-gray-100 transition shadow-xl animate-slide-in">Empezar Ahora - Es Gratis</button>
+        </div>
+    </section>
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <h3 class="text-3xl font-bold text-center mb-12 text-gray-800">¿Por qué usar Finzi?</h3>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="text-center card-hover bg-gray-50 p-8 rounded-xl"><div class="text-5xl mb-4">🎯</div><h4 class="text-xl font-bold mb-3">Comparamos por ti</h4><p class="text-gray-600">Analizamos CETES, fondos, cuentas de ahorro y más. Tú solo eliges la mejor opción.</p></div>
+                <div class="text-center card-hover bg-gray-50 p-8 rounded-xl"><div class="text-5xl mb-4">💰</div><h4 class="text-xl font-bold mb-3">Calcula tus ganancias</h4><p class="text-gray-600">Ve exactamente cuánto ganarás mes a mes con simulaciones precisas.</p></div>
+                <div class="text-center card-hover bg-gray-50 p-8 rounded-xl"><div class="text-5xl mb-4">🔒</div><h4 class="text-xl font-bold mb-3">100% seguro</h4><p class="text-gray-600">Solo recomendamos instituciones reguladas por la CNBV y CONDUSEF.</p></div>
+            </div>
+        </div>
+    </section>
+    <section id="comparador" class="py-16 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <h3 class="text-3xl font-bold text-center mb-4 text-gray-800">Opciones de Inversión</h3>
+            <p class="text-center text-gray-600 mb-12">Compara rendimientos y encuentra la mejor opción para ti</p>
+            <div id="loadingOpciones" class="flex justify-center items-center py-12"><div class="loading"></div></div>
+            <div id="opcionesGrid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12"></div>
+        </div>
+    </section>
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-4 max-w-4xl">
+            <h3 class="text-3xl font-bold text-center mb-12 text-gray-800">📊 Calcula tu Proyección</h3>
+            <div class="bg-gray-50 rounded-2xl p-8 shadow-lg">
+                <div class="grid md:grid-cols-2 gap-6 mb-6">
+                    <div><label class="block text-sm font-semibold text-gray-700 mb-2">¿Cuánto quieres invertir?</label><div class="relative"><span class="absolute left-3 top-3 text-gray-500">$</span><input type="number" id="inputMontoInicial" value="10000" class="w-full pl-8 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none" placeholder="10,000"></div></div>
+                    <div><label class="block text-sm font-semibold text-gray-700 mb-2">¿Cuánto ahorrarás mensualmente?</label><div class="relative"><span class="absolute left-3 top-3 text-gray-500">$</span><input type="number" id="inputAportesMensuales" value="2000" class="w-full pl-8 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none" placeholder="2,000"></div></div>
+                    <div><label class="block text-sm font-semibold text-gray-700 mb-2">¿Por cuántos meses?</label><input type="number" id="inputMeses" value="12" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none" placeholder="12"></div>
+                    <div><label class="block text-sm font-semibold text-gray-700 mb-2">Rendimiento anual esperado (%)</label><input type="number" id="inputTasa" value="15" step="0.5" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none" placeholder="15"></div>
+                </div>
+                <button id="btnCalcular" class="w-full gradient-bg text-white py-4 rounded-lg font-bold text-lg hover:opacity-90 transition">Calcular Proyección</button>
+                <div id="resultadosProyeccion" class="mt-8 hidden">
+                    <div class="grid md:grid-cols-3 gap-4 mb-6">
+                        <div class="bg-white p-6 rounded-xl shadow"><p class="text-sm text-gray-600 mb-1">Total Aportado</p><p id="resultTotalAportado" class="text-2xl font-bold text-gray-800">$0</p></div>
+                        <div class="bg-white p-6 rounded-xl shadow"><p class="text-sm text-gray-600 mb-1">Ganancias</p><p id="resultGanancias" class="text-2xl font-bold text-green-600">$0</p></div>
+                        <div class="bg-gradient-to-br from-purple-500 to-purple-700 p-6 rounded-xl shadow"><p class="text-sm text-white/80 mb-1">Monto Final</p><p id="resultMontoFinal" class="text-2xl font-bold text-white">$0</p></div>
+                    </div>
+                    <div class="bg-white rounded-xl p-6 shadow-lg mb-6">
+                        <h4 class="text-lg font-bold text-gray-800 mb-4">📈 Proyección de Crecimiento</h4>
+                        <canvas id="graficarCrecimiento"></canvas>
+                    </div>
+                    <div class="bg-white rounded-xl p-6 shadow-lg">
+                        <h4 class="text-lg font-bold text-gray-800 mb-4">🔄 Comparación de Escenarios</h4>
+                        <div class="mb-4 text-sm text-gray-600"><p>Compara diferentes tasas de rendimiento para tu inversión:</p></div>
+                        <canvas id="graficaComparacion"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <div id="modalRegistro" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-8 animate-slide-in">
+            <h3 class="text-2xl font-bold mb-6">Crear Cuenta</h3>
+            <form id="formRegistro">
+                <div class="mb-4"><label class="block text-sm font-semibold text-gray-700 mb-2">Nombre completo</label><input type="text" id="regNombre" required class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none" placeholder="Juan Pérez"></div>
+                <div class="mb-4"><label class="block text-sm font-semibold text-gray-700 mb-2">Email</label><input type="email" id="regEmail" required class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none" placeholder="tu@email.com"></div>
+                <div class="mb-6"><label class="block text-sm font-semibold text-gray-700 mb-2">Contraseña</label><input type="password" id="regPassword" required minlength="6" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none" placeholder="Mínimo 6 caracteres"></div>
+                <button type="submit" class="w-full gradient-bg text-white py-3 rounded-lg font-bold hover:opacity-90 transition">Registrarse Gratis</button>
+                <button type="button" id="btnCerrarRegistro" class="w-full mt-3 text-gray-600 py-2 hover:text-gray-800 transition">Cancelar</button>
+            </form>
+        </div>
+    </div>
+    <div id="modalLogin" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-8 animate-slide-in">
+            <h3 class="text-2xl font-bold mb-6">Iniciar Sesión</h3>
+            <form id="formLogin">
+                <div class="mb-4"><label class="block text-sm font-semibold text-gray-700 mb-2">Email</label><input type="email" id="loginEmail" required class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none" placeholder="tu@email.com"></div>
+                <div class="mb-6"><label class="block text-sm font-semibold text-gray-700 mb-2">Contraseña</label><input type="password" id="loginPassword" required class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none" placeholder="Tu contraseña"></div>
+                <button type="submit" class="w-full gradient-bg text-white py-3 rounded-lg font-bold hover:opacity-90 transition">Entrar</button>
+                <button type="button" id="btnCerrarLogin" class="w-full mt-3 text-gray-600 py-2 hover:text-gray-800 transition">Cancelar</button>
+            </form>
+        </div>
+    </div>
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="container mx-auto px-4 text-center">
+            <div class="flex items-center justify-center space-x-2 mb-4">
+                <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20"><path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"/></svg>
+                <h3 class="text-2xl font-bold">Finzi</h3>
+            </div>
+            <p class="text-gray-400 mb-6">Tu plataforma de ahorro e inversión inteligente en México</p>
+            <p class="text-sm text-gray-500">© 2025 Finzi. No somos una institución financiera. <br>Comparamos opciones de inversión reguladas por CNBV y CONDUSEF.</p>
+        </div>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <script src="/app.js"></script>
+</body>
+</html>
