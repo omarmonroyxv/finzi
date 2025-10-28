@@ -1,340 +1,308 @@
 // database/setup.js
-// Configuración inicial de la base de datos SQLite
+// Configuración inicial de la base de datos PostgreSQL
 
-const sqlite3 = require('sqlite3').verbose();
+const { Pool } = require('pg');
 const path = require('path');
 
-const DB_PATH = path.join(__dirname, 'finzi.db');
+// Configuración de conexión
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL || process.env.DB_URL,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+});
 
-function crearBaseDatos() {
-  return new Promise((resolve, reject) => {
-    const db = new sqlite3.Database(DB_PATH, (err) => {
-      if (err) {
-        console.error('❌ Error conectando a la base de datos:', err);
-        reject(err);
-        return;
-      }
-      console.log('✅ Conectado a SQLite');
-    });
+async function crearBaseDatos() {
+  const client = await pool.connect();
+  
+  try {
+    console.log('✅ Conectado a PostgreSQL');
 
-    // Habilitar foreign keys
-    db.run('PRAGMA foreign_keys = ON');
+    // Habilitar extensiones
+    await client.query('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"');
 
     // TABLA: usuarios
-    db.run(`
+    await client.query(`
       CREATE TABLE IF NOT EXISTS usuarios (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         nombre TEXT NOT NULL,
         email TEXT UNIQUE NOT NULL,
         password_hash TEXT NOT NULL,
         telefono TEXT,
         fecha_nacimiento DATE,
         
-        -- Datos financieros
-        ahorro_actual REAL DEFAULT 0,
-        meta_ahorro REAL,
+        ahorro_actual DECIMAL(12,2) DEFAULT 0,
+        meta_ahorro DECIMAL(12,2),
         meta_fecha DATE,
         tolerancia_riesgo TEXT DEFAULT 'medio',
         
-        -- Membresía
         tipo_plan TEXT DEFAULT 'gratuito',
-        fecha_premium DATE,
+        fecha_premium TIMESTAMP,
         
-        -- Tracking
         referido_por TEXT,
         codigo_referido TEXT UNIQUE,
-        fecha_registro DATETIME DEFAULT CURRENT_TIMESTAMP,
-        ultimo_acceso DATETIME,
+        fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        ultimo_acceso TIMESTAMP,
         
-        -- Estado
-        email_verificado INTEGER DEFAULT 0,
-        activo INTEGER DEFAULT 1
+        email_verificado BOOLEAN DEFAULT FALSE,
+        activo BOOLEAN DEFAULT TRUE
       )
-    `, (err) => {
-      if (err) console.error('Error creando tabla usuarios:', err);
-    });
+    `);
+    console.log('✅ Tabla usuarios creada');
 
     // TABLA: opciones_inversion
-    db.run(`
+    await client.query(`
       CREATE TABLE IF NOT EXISTS opciones_inversion (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         nombre TEXT NOT NULL,
         tipo TEXT NOT NULL,
         institucion TEXT NOT NULL,
         
-        -- Rendimientos
-        tasa_anual REAL NOT NULL,
-        tasa_mensual REAL,
+        tasa_anual DECIMAL(5,2) NOT NULL,
+        tasa_mensual DECIMAL(5,2),
         
-        -- Requisitos
-        monto_minimo REAL DEFAULT 0,
+        monto_minimo DECIMAL(12,2) DEFAULT 0,
         plazo_minimo_dias INTEGER DEFAULT 0,
         
-        -- Características
         nivel_riesgo TEXT DEFAULT 'bajo',
         liquidez TEXT DEFAULT 'alta',
         descripcion TEXT,
         
-        -- Comisiones
-        comision_apertura REAL DEFAULT 0,
-        comision_manejo REAL DEFAULT 0,
+        comision_apertura DECIMAL(5,2) DEFAULT 0,
+        comision_manejo DECIMAL(5,2) DEFAULT 0,
         
-        -- Afiliado
         url_afiliado TEXT,
-        comision_referido REAL DEFAULT 0,
+        comision_referido DECIMAL(8,2) DEFAULT 0,
         
-        -- Metadata
         logo_url TEXT,
-        destacado INTEGER DEFAULT 0,
-        activo INTEGER DEFAULT 1,
-        fecha_actualizacion DATETIME DEFAULT CURRENT_TIMESTAMP
+        destacado BOOLEAN DEFAULT FALSE,
+        activo BOOLEAN DEFAULT TRUE,
+        fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
-    `, (err) => {
-      if (err) console.error('Error creando tabla opciones_inversion:', err);
-    });
+    `);
+    console.log('✅ Tabla opciones_inversion creada');
 
-    // TABLA: conversiones (tracking de referidos)
-    db.run(`
+    // TABLA: conversiones
+    await client.query(`
       CREATE TABLE IF NOT EXISTS conversiones (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        usuario_id INTEGER NOT NULL,
-        opcion_id INTEGER NOT NULL,
+        id SERIAL PRIMARY KEY,
+        usuario_id INTEGER NOT NULL REFERENCES usuarios(id),
+        opcion_id INTEGER NOT NULL REFERENCES opciones_inversion(id),
         
-        -- Datos de la conversión
-        monto_invertido REAL,
-        fecha_click DATETIME DEFAULT CURRENT_TIMESTAMP,
-        fecha_conversion DATETIME,
+        monto_invertido DECIMAL(12,2),
+        fecha_click TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        fecha_conversion TIMESTAMP,
         
-        -- Comisión
-        comision_ganada REAL DEFAULT 0,
+        comision_ganada DECIMAL(8,2) DEFAULT 0,
         estado TEXT DEFAULT 'pendiente',
         
-        -- Metadata
         ip_address TEXT,
-        user_agent TEXT,
-        
-        FOREIGN KEY (usuario_id) REFERENCES usuarios (id),
-        FOREIGN KEY (opcion_id) REFERENCES opciones_inversion (id)
+        user_agent TEXT
       )
-    `, (err) => {
-      if (err) console.error('Error creando tabla conversiones:', err);
-    });
+    `);
+    console.log('✅ Tabla conversiones creada');
 
     // TABLA: metas_ahorro
-    db.run(`
+    await client.query(`
       CREATE TABLE IF NOT EXISTS metas_ahorro (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        usuario_id INTEGER NOT NULL,
+        id SERIAL PRIMARY KEY,
+        usuario_id INTEGER NOT NULL REFERENCES usuarios(id),
         
-        -- Detalles de la meta
         nombre TEXT NOT NULL,
         descripcion TEXT,
-        monto_objetivo REAL NOT NULL,
-        monto_actual REAL DEFAULT 0,
+        monto_objetivo DECIMAL(12,2) NOT NULL,
+        monto_actual DECIMAL(12,2) DEFAULT 0,
         fecha_objetivo DATE,
         
-        -- Estrategia
-        aporte_mensual REAL,
-        opcion_inversion_id INTEGER,
+        aporte_mensual DECIMAL(12,2),
+        opcion_inversion_id INTEGER REFERENCES opciones_inversion(id),
         
-        -- Estado
-        completada INTEGER DEFAULT 0,
-        fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP,
-        fecha_completada DATETIME,
-        
-        FOREIGN KEY (usuario_id) REFERENCES usuarios (id),
-        FOREIGN KEY (opcion_inversion_id) REFERENCES opciones_inversion (id)
+        completada BOOLEAN DEFAULT FALSE,
+        fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        fecha_completada TIMESTAMP
       )
-    `, (err) => {
-      if (err) console.error('Error creando tabla metas_ahorro:', err);
-    });
+    `);
+    console.log('✅ Tabla metas_ahorro creada');
 
     // TABLA: notificaciones
-    db.run(`
+    await client.query(`
       CREATE TABLE IF NOT EXISTS notificaciones (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        usuario_id INTEGER NOT NULL,
+        id SERIAL PRIMARY KEY,
+        usuario_id INTEGER NOT NULL REFERENCES usuarios(id),
         
-        -- Contenido
         tipo TEXT NOT NULL,
         titulo TEXT NOT NULL,
         mensaje TEXT NOT NULL,
         
-        -- Estado
-        leida INTEGER DEFAULT 0,
-        fecha_envio DATETIME DEFAULT CURRENT_TIMESTAMP,
-        fecha_lectura DATETIME,
+        leida BOOLEAN DEFAULT FALSE,
+        fecha_envio TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        fecha_lectura TIMESTAMP,
         
-        -- Metadata
         link TEXT,
-        icono TEXT,
-        
-        FOREIGN KEY (usuario_id) REFERENCES usuarios (id)
+        icono TEXT
       )
-    `, (err) => {
-      if (err) console.error('Error creando tabla notificaciones:', err);
-    });
+    `);
+    console.log('✅ Tabla notificaciones creada');
 
-    // TABLA: pagos_premium (para membresías)
-    db.run(`
+    // TABLA: pagos_premium
+    await client.query(`
       CREATE TABLE IF NOT EXISTS pagos_premium (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        usuario_id INTEGER NOT NULL,
+        id SERIAL PRIMARY KEY,
+        usuario_id INTEGER NOT NULL REFERENCES usuarios(id),
         
-        -- Detalles del pago
-        monto REAL NOT NULL,
+        monto DECIMAL(8,2) NOT NULL,
         tipo_plan TEXT NOT NULL,
         periodo TEXT NOT NULL,
         
-        -- Fechas
         fecha_inicio DATE NOT NULL,
         fecha_fin DATE NOT NULL,
-        fecha_pago DATETIME DEFAULT CURRENT_TIMESTAMP,
+        fecha_pago TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         
-        -- Pago
         metodo_pago TEXT,
         referencia_pago TEXT,
-        estado TEXT DEFAULT 'completado',
-        
-        FOREIGN KEY (usuario_id) REFERENCES usuarios (id)
+        estado TEXT DEFAULT 'completado'
       )
-    `, (err) => {
-      if (err) console.error('Error creando tabla pagos_premium:', err);
-      
-      // Cerrar conexión después de crear todas las tablas
-      db.close((err) => {
-        if (err) {
-          console.error('Error cerrando la base de datos:', err);
-          reject(err);
-        } else {
-          console.log('✅ Base de datos creada exitosamente');
-          resolve();
-        }
-      });
-    });
-  });
+    `);
+    console.log('✅ Tabla pagos_premium creada');
+
+    console.log('✅ Base de datos PostgreSQL creada exitosamente');
+    
+  } catch (error) {
+    console.error('❌ Error creando base de datos:', error);
+    throw error;
+  } finally {
+    client.release();
+  }
 }
 
-// Insertar datos iniciales de opciones de inversión
-function insertarDatosIniciales() {
-  const db = new sqlite3.Database(DB_PATH);
+async function insertarDatosIniciales() {
+  const client = await pool.connect();
   
-  const opciones = [
-    {
-      nombre: 'CETES 28 días',
-      tipo: 'Gubernamental',
-      institucion: 'CetesDirecto',
-      tasa_anual: 11.25,
-      tasa_mensual: 0.94,
-      monto_minimo: 100,
-      plazo_minimo_dias: 28,
-      nivel_riesgo: 'muy_bajo',
-      liquidez: 'alta',
-      descripcion: 'Certificados de la Tesorería. La inversión más segura en México, respaldada por el gobierno.',
-      url_afiliado: 'https://www.cetesdirecto.com/',
-      comision_referido: 0,
-      logo_url: 'https://www.cetesdirecto.com/assets/img/logo.png',
-      destacado: 1
-    },
-    {
-      nombre: 'Hey Banco',
-      tipo: 'Cuenta de ahorro',
-      institucion: 'Hey Banco',
-      tasa_anual: 15.0,
-      tasa_mensual: 1.25,
-      monto_minimo: 1,
-      plazo_minimo_dias: 0,
-      nivel_riesgo: 'bajo',
-      liquidez: 'inmediata',
-      descripcion: 'Cuenta digital con rendimientos diarios. Retira tu dinero cuando quieras sin penalización.',
-      url_afiliado: 'https://www.heybanco.com/?ref=',
-      comision_referido: 100,
-      logo_url: 'https://www.heybanco.com/assets/logo.svg',
-      destacado: 1
-    },
-    {
-      nombre: 'GBM+ Smart Cash',
-      tipo: 'Fondo de inversión',
-      institucion: 'GBM+',
-      tasa_anual: 12.8,
-      tasa_mensual: 1.07,
-      monto_minimo: 1000,
-      plazo_minimo_dias: 0,
-      nivel_riesgo: 'bajo',
-      liquidez: 'alta',
-      descripcion: 'Fondo de deuda gubernamental. Gestionado profesionalmente con rendimientos competitivos.',
-      url_afiliado: 'https://gbm.com/registro?ref=',
-      comision_referido: 200,
-      logo_url: 'https://gbm.com/assets/logo.png',
-      destacado: 0
-    },
-    {
-      nombre: 'Kuspit Diversificado',
-      tipo: 'Fondo de inversión',
-      institucion: 'Kuspit',
-      tasa_anual: 18.0,
-      tasa_mensual: 1.5,
-      monto_minimo: 100,
-      plazo_minimo_dias: 0,
-      nivel_riesgo: 'medio',
-      liquidez: 'media',
-      descripcion: 'Cartera diversificada con instrumentos de deuda y renta variable. Mayor rendimiento, riesgo controlado.',
-      url_afiliado: 'https://kuspit.com/registro?ref=',
-      comision_referido: 150,
-      logo_url: 'https://kuspit.com/assets/logo.svg',
-      destacado: 1
-    },
-    {
-      nombre: 'Nu Cuenta',
-      tipo: 'Cuenta de ahorro',
-      institucion: 'Nu México',
-      tasa_anual: 14.5,
-      tasa_mensual: 1.21,
-      monto_minimo: 1,
-      plazo_minimo_dias: 0,
-      nivel_riesgo: 'bajo',
-      liquidez: 'inmediata',
-      descripcion: 'Cuenta con rendimientos automáticos. Sin comisiones, 100% digital.',
-      url_afiliado: 'https://nu.com.mx/?ref=',
-      comision_referido: 50,
-      logo_url: 'https://nu.com.mx/images/nu-logo.svg',
-      destacado: 0
+  try {
+    // Verificar si ya hay opciones
+    const { rows } = await client.query('SELECT COUNT(*) FROM opciones_inversion');
+    if (parseInt(rows[0].count) > 0) {
+      console.log('ℹ️  Datos iniciales ya existen, omitiendo inserción');
+      return;
     }
-  ];
 
-  const stmt = db.prepare(`
-    INSERT OR IGNORE INTO opciones_inversion 
-    (nombre, tipo, institucion, tasa_anual, tasa_mensual, monto_minimo, 
-     plazo_minimo_dias, nivel_riesgo, liquidez, descripcion, 
-     url_afiliado, comision_referido, logo_url, destacado)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `);
+    const opciones = [
+      {
+        nombre: 'CETES 28 días',
+        tipo: 'Gubernamental',
+        institucion: 'CetesDirecto',
+        tasa_anual: 11.25,
+        tasa_mensual: 0.94,
+        monto_minimo: 100,
+        plazo_minimo_dias: 28,
+        nivel_riesgo: 'muy_bajo',
+        liquidez: 'alta',
+        descripcion: 'Certificados de la Tesorería. La inversión más segura en México, respaldada por el gobierno.',
+        url_afiliado: 'https://www.cetesdirecto.com/',
+        comision_referido: 0,
+        logo_url: 'https://www.cetesdirecto.com/assets/img/logo.png',
+        destacado: true
+      },
+      {
+        nombre: 'Hey Banco',
+        tipo: 'Cuenta de ahorro',
+        institucion: 'Hey Banco',
+        tasa_anual: 15.0,
+        tasa_mensual: 1.25,
+        monto_minimo: 1,
+        plazo_minimo_dias: 0,
+        nivel_riesgo: 'bajo',
+        liquidez: 'inmediata',
+        descripcion: 'Cuenta digital con rendimientos diarios. Retira tu dinero cuando quieras sin penalización.',
+        url_afiliado: 'https://www.heybanco.com/?ref=',
+        comision_referido: 100,
+        logo_url: 'https://www.heybanco.com/assets/logo.svg',
+        destacado: true
+      },
+      {
+        nombre: 'GBM+ Smart Cash',
+        tipo: 'Fondo de inversión',
+        institucion: 'GBM+',
+        tasa_anual: 12.8,
+        tasa_mensual: 1.07,
+        monto_minimo: 1000,
+        plazo_minimo_dias: 0,
+        nivel_riesgo: 'bajo',
+        liquidez: 'alta',
+        descripcion: 'Fondo de deuda gubernamental. Gestionado profesionalmente con rendimientos competitivos.',
+        url_afiliado: 'https://gbm.com/registro?ref=',
+        comision_referido: 200,
+        logo_url: 'https://gbm.com/assets/logo.png',
+        destacado: false
+      },
+      {
+        nombre: 'Kuspit Diversificado',
+        tipo: 'Fondo de inversión',
+        institucion: 'Kuspit',
+        tasa_anual: 18.0,
+        tasa_mensual: 1.5,
+        monto_minimo: 100,
+        plazo_minimo_dias: 0,
+        nivel_riesgo: 'medio',
+        liquidez: 'media',
+        descripcion: 'Cartera diversificada con instrumentos de deuda y renta variable. Mayor rendimiento, riesgo controlado.',
+        url_afiliado: 'https://kuspit.com/registro?ref=',
+        comision_referido: 150,
+        logo_url: 'https://kuspit.com/assets/logo.svg',
+        destacado: true
+      },
+      {
+        nombre: 'Nu Cuenta',
+        tipo: 'Cuenta de ahorro',
+        institucion: 'Nu México',
+        tasa_anual: 14.5,
+        tasa_mensual: 1.21,
+        monto_minimo: 1,
+        plazo_minimo_dias: 0,
+        nivel_riesgo: 'bajo',
+        liquidez: 'inmediata',
+        descripcion: 'Cuenta con rendimientos automáticos. Sin comisiones, 100% digital.',
+        url_afiliado: 'https://nu.com.mx/?ref=',
+        comision_referido: 50,
+        logo_url: 'https://nu.com.mx/images/nu-logo.svg',
+        destacado: false
+      }
+    ];
 
-  opciones.forEach(opcion => {
-    stmt.run(
-      opcion.nombre, opcion.tipo, opcion.institucion, opcion.tasa_anual,
-      opcion.tasa_mensual, opcion.monto_minimo, opcion.plazo_minimo_dias,
-      opcion.nivel_riesgo, opcion.liquidez, opcion.descripcion,
-      opcion.url_afiliado, opcion.comision_referido, opcion.logo_url,
-      opcion.destacado
-    );
-  });
+    for (const opcion of opciones) {
+      await client.query(`
+        INSERT INTO opciones_inversion 
+        (nombre, tipo, institucion, tasa_anual, tasa_mensual, monto_minimo, 
+         plazo_minimo_dias, nivel_riesgo, liquidez, descripcion, 
+         url_afiliado, comision_referido, logo_url, destacado)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+        ON CONFLICT DO NOTHING
+      `, [
+        opcion.nombre, opcion.tipo, opcion.institucion, opcion.tasa_anual,
+        opcion.tasa_mensual, opcion.monto_minimo, opcion.plazo_minimo_dias,
+        opcion.nivel_riesgo, opcion.liquidez, opcion.descripcion,
+        opcion.url_afiliado, opcion.comision_referido, opcion.logo_url,
+        opcion.destacado
+      ]);
+    }
 
-  stmt.finalize();
-  db.close();
-  
-  console.log('✅ Datos iniciales insertados');
+    console.log('✅ Datos iniciales insertados');
+    
+  } catch (error) {
+    console.error('❌ Error insertando datos:', error);
+    throw error;
+  } finally {
+    client.release();
+  }
 }
 
 // Ejecutar setup
 if (require.main === module) {
-  console.log('🚀 Configurando base de datos...\n');
+  console.log('🚀 Configurando base de datos PostgreSQL...\n');
   
   crearBaseDatos()
+    .then(() => insertarDatosIniciales())
     .then(() => {
-      insertarDatosIniciales();
       console.log('\n✅ Setup completado');
-      console.log('📊 Base de datos lista en: database/finzi.db');
+      process.exit(0);
     })
     .catch(err => {
       console.error('❌ Error en setup:', err);
@@ -342,4 +310,4 @@ if (require.main === module) {
     });
 }
 
-module.exports = { crearBaseDatos, insertarDatosIniciales };
+module.exports = { crearBaseDatos, insertarDatosIniciales, pool };

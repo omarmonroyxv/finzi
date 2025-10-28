@@ -1,17 +1,20 @@
 // server.js
-// Servidor principal de Finzi - Backend API
-
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const sqlite3 = require('sqlite3').verbose();
+const { Pool } = require('pg');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const DB_PATH = process.env.DB_PATH || './database/finzi.db';
+
+// Configuración PostgreSQL
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL || process.env.DB_URL,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+});
 
 // ============================================
 // MIDDLEWARE
@@ -28,13 +31,40 @@ app.use((req, res, next) => {
 });
 
 // ============================================
-// FUNCIONES DE BASE DE DATOS
+// FUNCIONES DE BASE DE DATOS (PostgreSQL)
 // ============================================
 
-function getDB() {
-  return new sqlite3.Database(DB_PATH, (err) => {
-    if (err) console.error('Error conectando a DB:', err);
-  });
+async function dbRun(query, params = []) {
+  const client = await pool.connect();
+  try {
+    const result = await client.query(query, params);
+    return { 
+      id: result.rows[0]?.id, 
+      changes: result.rowCount 
+    };
+  } finally {
+    client.release();
+  }
+}
+
+async function dbGet(query, params = []) {
+  const client = await pool.connect();
+  try {
+    const result = await client.query(query, params);
+    return result.rows[0] || null;
+  } finally {
+    client.release();
+  }
+}
+
+async function dbAll(query, params = []) {
+  const client = await pool.connect();
+  try {
+    const result = await client.query(query, params);
+    return result.rows;
+  } finally {
+    client.release();
+  }
 }
 
 // Promisify database queries
@@ -136,7 +166,8 @@ app.post('/api/auth/registro', async (req, res) => {
     // Insertar usuario
     const resultado = await dbRun(
       `INSERT INTO usuarios (nombre, email, password_hash, telefono, codigo_referido, fecha_registro)
-       VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`,
+       VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP)
+       RETURNING id`,
       [nombre, email, passwordHash, telefono || null, codigoReferido]
     );
     
