@@ -67,40 +67,6 @@ async function dbAll(query, params = []) {
   }
 }
 
-// Promisify database queries
-function dbRun(query, params = []) {
-  return new Promise((resolve, reject) => {
-    const db = getDB();
-    db.run(query, params, function(err) {
-      db.close();
-      if (err) reject(err);
-      else resolve({ id: this.lastID, changes: this.changes });
-    });
-  });
-}
-
-function dbGet(query, params = []) {
-  return new Promise((resolve, reject) => {
-    const db = getDB();
-    db.get(query, params, (err, row) => {
-      db.close();
-      if (err) reject(err);
-      else resolve(row);
-    });
-  });
-}
-
-function dbAll(query, params = []) {
-  return new Promise((resolve, reject) => {
-    const db = getDB();
-    db.all(query, params, (err, rows) => {
-      db.close();
-      if (err) reject(err);
-      else resolve(rows);
-    });
-  });
-}
-
 // ============================================
 // MIDDLEWARE DE AUTENTICACIÓN
 // ============================================
@@ -146,7 +112,7 @@ app.post('/api/auth/registro', async (req, res) => {
     
     // Verificar si el email ya existe
     const existente = await dbGet(
-      'SELECT id FROM usuarios WHERE email = ?',
+      'SELECT id FROM usuarios WHERE email = $1',
       [email]
     );
     
@@ -164,16 +130,18 @@ app.post('/api/auth/registro', async (req, res) => {
     const codigoReferido = Math.random().toString(36).substring(2, 10).toUpperCase();
     
     // Insertar usuario
-    const resultado = await dbRun(
+    const resultado = await pool.query(
       `INSERT INTO usuarios (nombre, email, password_hash, telefono, codigo_referido, fecha_registro)
        VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP)
        RETURNING id`,
       [nombre, email, passwordHash, telefono || null, codigoReferido]
     );
     
+    const userId = resultado.rows[0].id;
+    
     // Generar token JWT
     const token = jwt.sign(
-      { userId: resultado.id },
+      { userId },
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
@@ -182,7 +150,7 @@ app.post('/api/auth/registro', async (req, res) => {
       success: true,
       message: 'Usuario registrado exitosamente',
       data: {
-        userId: resultado.id,
+        userId,
         nombre,
         email,
         token
@@ -193,7 +161,8 @@ app.post('/api/auth/registro', async (req, res) => {
     console.error('Error en registro:', error);
     res.status(500).json({ 
       success: false, 
-      message: 'Error al registrar usuario' 
+      message: 'Error al registrar usuario',
+      error: error.message 
     });
   }
 });
@@ -212,7 +181,7 @@ app.post('/api/auth/login', async (req, res) => {
     
     // Buscar usuario
     const usuario = await dbGet(
-      'SELECT id, nombre, email, password_hash, tipo_plan FROM usuarios WHERE email = ? AND activo = 1',
+      'SELECT id, nombre, email, password_hash, tipo_plan FROM usuarios WHERE email = $1 AND activo = true',
       [email]
     );
     
@@ -235,7 +204,7 @@ app.post('/api/auth/login', async (req, res) => {
     
     // Actualizar último acceso
     await dbRun(
-      'UPDATE usuarios SET ultimo_acceso = CURRENT_TIMESTAMP WHERE id = ?',
+      'UPDATE usuarios SET ultimo_acceso = CURRENT_TIMESTAMP WHERE id = $1',
       [usuario.id]
     );
     
@@ -276,7 +245,7 @@ app.get('/api/opciones', async (req, res) => {
   try {
     const opciones = await dbAll(
       `SELECT * FROM opciones_inversion 
-       WHERE activo = 1 
+       WHERE activo = true 
        ORDER BY destacado DESC, tasa_anual DESC`
     );
     
@@ -299,7 +268,7 @@ app.get('/api/opciones', async (req, res) => {
 app.get('/api/opciones/:id', async (req, res) => {
   try {
     const opcion = await dbGet(
-      'SELECT * FROM opciones_inversion WHERE id = ? AND activo = 1',
+      'SELECT * FROM opciones_inversion WHERE id = $1 AND activo = true',
       [req.params.id]
     );
     
@@ -414,7 +383,7 @@ app.post('/api/calcular/plan', verificarToken, async (req, res) => {
     
     const opciones = await dbAll(
       `SELECT * FROM opciones_inversion 
-       WHERE activo = 1 ${filtroRiesgo}
+       WHERE activo = true ${filtroRiesgo}
        ORDER BY tasa_anual DESC
        LIMIT 3`
     );
@@ -428,7 +397,6 @@ app.post('/api/calcular/plan', verificarToken, async (req, res) => {
       let aporteNecesario = 0;
       
       if (saldo < montoMeta) {
-        // Fórmula de valor futuro con aportes
         const factorInteres = Math.pow(1 + tasaMensual, mesesPlazo);
         const valorFuturoInicial = saldo * factorInteres;
         
@@ -488,7 +456,7 @@ app.get('/api/usuario/perfil', verificarToken, async (req, res) => {
               ahorro_actual, meta_ahorro, meta_fecha,
               tolerancia_riesgo, tipo_plan, codigo_referido,
               fecha_registro
-       FROM usuarios WHERE id = ?`,
+       FROM usuarios WHERE id = $1`,
       [req.userId]
     );
     
@@ -504,7 +472,7 @@ app.get('/api/usuario/perfil', verificarToken, async (req, res) => {
       `SELECT 
         COUNT(*) as total_conversiones,
         SUM(CASE WHEN estado = 'completado' THEN comision_ganada ELSE 0 END) as total_ganado
-       FROM conversiones WHERE usuario_id = ?`,
+       FROM conversiones WHERE usuario_id = $1`,
       [req.userId]
     );
     
@@ -540,14 +508,14 @@ app.put('/api/usuario/perfil', verificarToken, async (req, res) => {
     
     await dbRun(
       `UPDATE usuarios SET
-        nombre = COALESCE(?, nombre),
-        telefono = COALESCE(?, telefono),
-        fecha_nacimiento = COALESCE(?, fecha_nacimiento),
-        ahorro_actual = COALESCE(?, ahorro_actual),
-        meta_ahorro = COALESCE(?, meta_ahorro),
-        meta_fecha = COALESCE(?, meta_fecha),
-        tolerancia_riesgo = COALESCE(?, tolerancia_riesgo)
-       WHERE id = ?`,
+        nombre = COALESCE($1, nombre),
+        telefono = COALESCE($2, telefono),
+        fecha_nacimiento = COALESCE($3, fecha_nacimiento),
+        ahorro_actual = COALESCE($4, ahorro_actual),
+        meta_ahorro = COALESCE($5, meta_ahorro),
+        meta_fecha = COALESCE($6, meta_fecha),
+        tolerancia_riesgo = COALESCE($7, tolerancia_riesgo)
+       WHERE id = $8`,
       [nombre, telefono, fecha_nacimiento, ahorro_actual, 
        meta_ahorro, meta_fecha, tolerancia_riesgo, req.userId]
     );
@@ -584,7 +552,7 @@ app.post('/api/tracking/click', verificarToken, async (req, res) => {
     
     // Obtener datos de la opción
     const opcion = await dbGet(
-      'SELECT * FROM opciones_inversion WHERE id = ?',
+      'SELECT * FROM opciones_inversion WHERE id = $1',
       [opcionId]
     );
     
@@ -596,10 +564,11 @@ app.post('/api/tracking/click', verificarToken, async (req, res) => {
     }
     
     // Registrar la conversión
-    const resultado = await dbRun(
+    const resultado = await pool.query(
       `INSERT INTO conversiones 
        (usuario_id, opcion_id, monto_invertido, estado, ip_address, user_agent)
-       VALUES (?, ?, ?, 'click', ?, ?)`,
+       VALUES ($1, $2, $3, 'click', $4, $5)
+       RETURNING id`,
       [
         req.userId,
         opcionId,
@@ -609,14 +578,16 @@ app.post('/api/tracking/click', verificarToken, async (req, res) => {
       ]
     );
     
+    const conversionId = resultado.rows[0].id;
+    
     // Generar URL de afiliado personalizada
-    const urlAfiliado = `${opcion.url_afiliado}${opcion.institucion.toLowerCase()}_${req.userId}_${resultado.id}`;
+    const urlAfiliado = `${opcion.url_afiliado}${opcion.institucion.toLowerCase()}_${req.userId}_${conversionId}`;
     
     res.json({
       success: true,
       message: 'Click registrado',
       data: {
-        conversionId: resultado.id,
+        conversionId,
         urlAfiliado
       }
     });
@@ -646,7 +617,7 @@ app.get('/api/health', (req, res) => {
 app.get('/api/stats', async (req, res) => {
   try {
     const totalUsuarios = await dbGet('SELECT COUNT(*) as count FROM usuarios');
-    const totalOpciones = await dbGet('SELECT COUNT(*) as count FROM opciones_inversion WHERE activo = 1');
+    const totalOpciones = await dbGet('SELECT COUNT(*) as count FROM opciones_inversion WHERE activo = true');
     const totalConversiones = await dbGet('SELECT COUNT(*) as count FROM conversiones');
     
     res.json({
@@ -680,6 +651,7 @@ app.listen(PORT, () => {
   console.log('='.repeat(60));
   console.log(`\n📡 Servidor corriendo en: http://localhost:${PORT}`);
   console.log(`📊 API disponible en: http://localhost:${PORT}/api/health`);
+  console.log(`🗄️  Base de datos: PostgreSQL`);
   console.log(`\n⚠️  Presiona Ctrl+C para detener el servidor\n`);
   console.log('='.repeat(60) + '\n');
 });
