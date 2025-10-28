@@ -680,7 +680,6 @@ app.listen(PORT, () => {
   console.log('='.repeat(60));
   console.log(`\n📡 Servidor corriendo en: http://localhost:${PORT}`);
   console.log(`📊 API disponible en: http://localhost:${PORT}/api/health`);
-  console.log(`💾 Base de datos: ${DB_PATH}`);
   console.log(`\n⚠️  Presiona Ctrl+C para detener el servidor\n`);
   console.log('='.repeat(60) + '\n');
 });
