@@ -37,26 +37,34 @@ async function cargarPerfil() {
     }
 }
 
-function renderizarPerfil() {
+// Reemplaza la función renderizarPerfil() completa
+
+async function renderizarPerfil() {
     // Navbar
     document.getElementById('nombreUsuario').textContent = perfilUsuario.nombre;
     document.getElementById('nombreUsuarioBienvenida').textContent = perfilUsuario.nombre.split(' ')[0];
     
-    // Estadísticas
+    // Obtener totales de las metas
+    const totalesMetas = await obtenerTotalesMetas();
+    
+    // Estadísticas - Usar datos de las metas
     document.getElementById('ahorroActual').textContent = 
-        formatearMoneda(perfilUsuario.ahorro_actual || 0);
+        formatearMoneda(totalesMetas.totalAhorrado);
     
     document.getElementById('metaAhorro').textContent = 
-        formatearMoneda(perfilUsuario.meta_ahorro || 0);
+        formatearMoneda(totalesMetas.totalObjetivo);
     
     document.getElementById('tipoPlan').textContent = 
         perfilUsuario.tipo_plan === 'premium' ? 'Premium ⭐' : 'Gratuito';
     
     // Progreso de meta
-    if (perfilUsuario.meta_ahorro > 0) {
-        const progreso = (perfilUsuario.ahorro_actual / perfilUsuario.meta_ahorro) * 100;
+    if (totalesMetas.totalObjetivo > 0) {
+        const progreso = (totalesMetas.totalAhorrado / totalesMetas.totalObjetivo) * 100;
         document.getElementById('barraProgreso').style.width = `${Math.min(progreso, 100)}%`;
         document.getElementById('textoProgreso').textContent = `${progreso.toFixed(1)}% alcanzado`;
+    } else {
+        document.getElementById('barraProgreso').style.width = '0%';
+        document.getElementById('textoProgreso').textContent = 'Sin metas activas';
     }
     
     // Total de inversiones (conversiones completadas)
@@ -68,9 +76,55 @@ function renderizarPerfil() {
     document.getElementById('perfilEmail').value = perfilUsuario.email;
     document.getElementById('perfilTelefono').value = perfilUsuario.telefono || '';
     document.getElementById('perfilFechaNacimiento').value = perfilUsuario.fecha_nacimiento || '';
-    document.getElementById('perfilAhorroActual').value = perfilUsuario.ahorro_actual || 0;
+    document.getElementById('perfilAhorroActual').value = totalesMetas.totalAhorrado || 0;
     document.getElementById('perfilToleranciaRiesgo').value = perfilUsuario.tolerancia_riesgo || 'medio';
     document.getElementById('codigoReferido').value = perfilUsuario.codigo_referido || '';
+}
+
+// Nueva función para obtener totales de las metas
+async function obtenerTotalesMetas() {
+    try {
+        const response = await fetch(`${API_URL}/usuario/metas`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success && data.data.length > 0) {
+            const metas = data.data;
+            
+            // Sumar solo metas NO completadas
+            const metasActivas = metas.filter(m => !m.completada);
+            
+            const totalObjetivo = metasActivas.reduce((sum, meta) => 
+                sum + (parseFloat(meta.monto_objetivo) || 0), 0);
+            
+            const totalAhorrado = metasActivas.reduce((sum, meta) => 
+                sum + (parseFloat(meta.monto_actual) || 0), 0);
+            
+            return {
+                totalObjetivo,
+                totalAhorrado,
+                cantidadMetas: metasActivas.length
+            };
+        }
+        
+        return {
+            totalObjetivo: 0,
+            totalAhorrado: 0,
+            cantidadMetas: 0
+        };
+        
+    } catch (error) {
+        console.error('Error obteniendo totales de metas:', error);
+        return {
+            totalObjetivo: 0,
+            totalAhorrado: 0,
+            cantidadMetas: 0
+        };
+    }
 }
 
 // ============================================
@@ -256,6 +310,7 @@ async function crearMeta(event) {
             mostrarNotificacion('Meta creada exitosamente! 🎉');
             cerrarModalNuevaMeta();
             cargarMetas();
+            renderizarPerfil();
         } else {
             mostrarNotificacion(data.message || 'Error al crear meta', 'error');
         }
@@ -283,6 +338,7 @@ async function eliminarMeta(metaId) {
         if (data.success) {
             mostrarNotificacion('Meta eliminada correctamente');
             cargarMetas();
+            renderizarPerfil();
         } else {
             mostrarNotificacion(data.message || 'Error al eliminar meta', 'error');
         }
@@ -335,6 +391,7 @@ async function actualizarMontoMeta(metaId, nuevoMonto, montoObjetivo) {
                 mostrarNotificacion('Progreso actualizado correctamente');
             }
             cargarMetas();
+            renderizarPerfil();
             cargarPerfil(); // Actualizar estadísticas
         } else {
             mostrarNotificacion(data.message || 'Error al actualizar meta', 'error');
