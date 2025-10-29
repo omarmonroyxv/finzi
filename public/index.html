@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@800&display=swap');
         * { font-family: 'Inter', sans-serif; }
         .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
         .card-hover { transition: all 0.3s ease; }
@@ -23,9 +24,16 @@
     <nav class="gradient-bg text-white shadow-lg">
         <div class="container mx-auto px-4 py-4">
             <div class="flex justify-between items-center">
-                <div class="flex items-center space-x-2">
-                    <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20"><path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"/></svg>
-                    <h1 class="text-2xl font-bold">Finzi</h1>
+                <div class="variation color-bg">
+                    <svg width="150" height="50" viewBox="0 0 240 80">
+                        <rect x="10" y="10" width="60" height="60" rx="15" fill="white"/>
+                        <path d="M40 20 L40 60 M25 30 L50 30 M25 40 L45 40" stroke="#667eea" stroke-width="5" stroke-linecap="round"/>
+                        <text x="85" y="55" font-family="Poppins, sans-serif" font-size="48" font-weight="800" fill="white">finzi</text>
+                    </svg>
+                    <p style="text-align:center; margin:10px 0 0 0; font-size:12px; color:white;"></p>
+                            </linearGradient>
+                        </defs>
+                    </svg>
                 </div>
                 <div class="flex items-center space-x-4">
                     <button id="btnLogin" class="px-4 py-2 rounded-lg hover:bg-white/10 transition">Iniciar Sesión</button>
@@ -114,9 +122,18 @@
     </div>
     <footer class="bg-gray-900 text-white py-12">
         <div class="container mx-auto px-4 text-center">
-            <div class="flex items-center justify-center space-x-2 mb-4">
-                <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20"><path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"/></svg>
-                <h3 class="text-2xl font-bold">Finzi</h3>
+            <div class="flex items-center justify-center mb-4">
+                <svg class="h-10" viewBox="0 0 240 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="10" y="10" width="60" height="60" rx="15" fill="url(#gradient-footer)"/>
+                    <path d="M40 20 L40 60 M25 30 L50 30 M25 40 L45 40" stroke="white" stroke-width="5" stroke-linecap="round"/>
+                    <text x="85" y="55" font-family="Poppins, sans-serif" font-size="48" font-weight="800" fill="white">finzi</text>
+                    <defs>
+                        <linearGradient id="gradient-footer" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                </svg>
             </div>
             <p class="text-gray-400 mb-6">Tu plataforma de ahorro e inversión inteligente en México</p>
             <p class="text-sm text-gray-500">© 2025 Finzi. No somos una institución financiera. <br>Comparamos opciones de inversión reguladas por CNBV y CONDUSEF.</p>
