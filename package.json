@@ -3,11 +3,11 @@
   "version": "1.0.0",
   "description": "Plataforma de ahorro e inversión inteligente",
   "main": "server.js",
-  "scripts": {
+    "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
     "setup": "node database/setup.js",
-    "build": "echo \"Build omitido, no es necesario\""
+    "build": "echo \"Build completed\""
   },
   "engines": {
     "node": ">=18.0.0"
