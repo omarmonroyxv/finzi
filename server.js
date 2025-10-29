@@ -602,6 +602,197 @@ app.post('/api/tracking/click', verificarToken, async (req, res) => {
 });
 
 // ============================================
+// RUTAS DE METAS DE AHORRO
+// ============================================
+
+// Obtener todas las metas del usuario
+app.get('/api/usuario/metas', verificarToken, async (req, res) => {
+  try {
+    const metas = await dbAll(
+      `SELECT * FROM metas_ahorro 
+       WHERE usuario_id = $1 
+       ORDER BY fecha_creacion DESC`,
+      [req.userId]
+    );
+    
+    res.json({
+      success: true,
+      count: metas.length,
+      data: metas
+    });
+    
+  } catch (error) {
+    console.error('Error obteniendo metas:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error al obtener metas' 
+    });
+  }
+});
+
+// Crear nueva meta
+app.post('/api/usuario/metas', verificarToken, async (req, res) => {
+  try {
+    const { 
+      nombre, 
+      descripcion,
+      monto_objetivo, 
+      fecha_objetivo,
+      aporte_mensual,
+      opcion_inversion_id 
+    } = req.body;
+    
+    // Validaciones
+    if (!nombre || !monto_objetivo) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Nombre y monto objetivo son requeridos' 
+      });
+    }
+    
+    // Insertar meta
+    const resultado = await pool.query(
+      `INSERT INTO metas_ahorro 
+       (usuario_id, nombre, descripcion, monto_objetivo, fecha_objetivo, 
+        aporte_mensual, opcion_inversion_id, fecha_creacion)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, CURRENT_TIMESTAMP)
+       RETURNING *`,
+      [
+        req.userId, 
+        nombre, 
+        descripcion || null,
+        monto_objetivo, 
+        fecha_objetivo || null,
+        aporte_mensual || 0,
+        opcion_inversion_id || null
+      ]
+    );
+    
+    res.json({
+      success: true,
+      message: 'Meta creada exitosamente',
+      data: resultado.rows[0]
+    });
+    
+  } catch (error) {
+    console.error('Error creando meta:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error al crear meta',
+      error: error.message 
+    });
+  }
+});
+
+// Actualizar una meta
+app.put('/api/usuario/metas/:id', verificarToken, async (req, res) => {
+  try {
+    const metaId = req.params.id;
+    const { 
+      nombre, 
+      descripcion,
+      monto_objetivo,
+      monto_actual,
+      fecha_objetivo,
+      aporte_mensual,
+      completada 
+    } = req.body;
+    
+    // Verificar que la meta pertenece al usuario
+    const metaExistente = await dbGet(
+      'SELECT id FROM metas_ahorro WHERE id = $1 AND usuario_id = $2',
+      [metaId, req.userId]
+    );
+    
+    if (!metaExistente) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Meta no encontrada' 
+      });
+    }
+    
+    // Actualizar meta
+    await pool.query(
+      `UPDATE metas_ahorro SET
+        nombre = COALESCE($1, nombre),
+        descripcion = COALESCE($2, descripcion),
+        monto_objetivo = COALESCE($3, monto_objetivo),
+        monto_actual = COALESCE($4, monto_actual),
+        fecha_objetivo = COALESCE($5, fecha_objetivo),
+        aporte_mensual = COALESCE($6, aporte_mensual),
+        completada = COALESCE($7, completada),
+        fecha_completada = CASE 
+          WHEN $7 = true AND completada = false THEN CURRENT_TIMESTAMP 
+          ELSE fecha_completada 
+        END
+       WHERE id = $8 AND usuario_id = $9`,
+      [
+        nombre, descripcion, monto_objetivo, monto_actual,
+        fecha_objetivo, aporte_mensual, completada,
+        metaId, req.userId
+      ]
+    );
+    
+    // Obtener meta actualizada
+    const metaActualizada = await dbGet(
+      'SELECT * FROM metas_ahorro WHERE id = $1',
+      [metaId]
+    );
+    
+    res.json({
+      success: true,
+      message: 'Meta actualizada exitosamente',
+      data: metaActualizada
+    });
+    
+  } catch (error) {
+    console.error('Error actualizando meta:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error al actualizar meta' 
+    });
+  }
+});
+
+// Eliminar una meta
+app.delete('/api/usuario/metas/:id', verificarToken, async (req, res) => {
+  try {
+    const metaId = req.params.id;
+    
+    // Verificar que la meta pertenece al usuario
+    const metaExistente = await dbGet(
+      'SELECT id FROM metas_ahorro WHERE id = $1 AND usuario_id = $2',
+      [metaId, req.userId]
+    );
+    
+    if (!metaExistente) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Meta no encontrada' 
+      });
+    }
+    
+    // Eliminar meta
+    await pool.query(
+      'DELETE FROM metas_ahorro WHERE id = $1 AND usuario_id = $2',
+      [metaId, req.userId]
+    );
+    
+    res.json({
+      success: true,
+      message: 'Meta eliminada exitosamente'
+    });
+    
+  } catch (error) {
+    console.error('Error eliminando meta:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error al eliminar meta' 
+    });
+  }
+});
+
+// ============================================
 // RUTAS DE SALUD Y ESTADÍSTICAS
 // ============================================
 

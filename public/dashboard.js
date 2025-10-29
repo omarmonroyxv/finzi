@@ -121,46 +121,100 @@ function cambiarTab(tabName) {
 }
 
 // ============================================
-// GESTIÓN DE METAS
+// GESTIÓN DE METAS (REEMPLAZA LA SECCIÓN COMPLETA)
 // ============================================
 
 async function cargarMetas() {
-    // Por ahora simularemos, pero deberías agregar un endpoint en el backend
-    const metas = []; // Aquí irían las metas desde la API
-    
-    const listaMetas = document.getElementById('listaMetas');
-    
-    if (metas.length === 0) {
-        listaMetas.innerHTML = `
-            <div class="text-center py-12 text-gray-500">
-                <p class="text-lg mb-2">No tienes metas aún</p>
-                <p class="text-sm">Crea tu primera meta de ahorro para empezar</p>
-            </div>
-        `;
-    } else {
-        listaMetas.innerHTML = metas.map(meta => `
-            <div class="border-2 border-gray-200 rounded-xl p-6 hover:border-purple-300 transition">
-                <div class="flex justify-between items-start mb-4">
-                    <div>
-                        <h4 class="text-lg font-bold text-gray-800">${meta.nombre}</h4>
-                        <p class="text-sm text-gray-600">Meta: ${formatearMoneda(meta.monto_objetivo)}</p>
+    try {
+        const response = await fetch(`${API_URL}/usuario/metas`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (!data.success) {
+            console.error('Error cargando metas:', data.message);
+            return;
+        }
+        
+        const metas = data.data || [];
+        const listaMetas = document.getElementById('listaMetas');
+        
+        if (metas.length === 0) {
+            listaMetas.innerHTML = `
+                <div class="text-center py-12 text-gray-500">
+                    <p class="text-lg mb-2">No tienes metas aún</p>
+                    <p class="text-sm">Crea tu primera meta de ahorro para empezar</p>
+                </div>
+            `;
+        } else {
+            listaMetas.innerHTML = metas.map(meta => {
+                const progreso = meta.monto_objetivo > 0 
+                    ? (meta.monto_actual / meta.monto_objetivo) * 100 
+                    : 0;
+                
+                const fechaFormateada = meta.fecha_objetivo 
+                    ? new Date(meta.fecha_objetivo).toLocaleDateString('es-MX', { 
+                        year: 'numeric', 
+                        month: 'short', 
+                        day: 'numeric' 
+                      })
+                    : 'Sin fecha límite';
+                
+                return `
+                    <div class="border-2 border-gray-200 rounded-xl p-6 hover:border-purple-300 transition">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h4 class="text-lg font-bold text-gray-800">${meta.nombre}</h4>
+                                <p class="text-sm text-gray-600">Meta: ${formatearMoneda(meta.monto_objetivo)}</p>
+                                ${meta.descripcion ? `<p class="text-xs text-gray-500 mt-1">${meta.descripcion}</p>` : ''}
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <span class="text-2xl">${meta.completada ? '✅' : '🎯'}</span>
+                                <button onclick="eliminarMeta(${meta.id})" 
+                                    class="text-red-500 hover:text-red-700 text-sm"
+                                    title="Eliminar meta">
+                                    🗑️
+                                </button>
+                            </div>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-3 mb-2">
+                            <div class="bg-purple-600 h-3 rounded-full transition-all" 
+                                 style="width: ${Math.min(progreso, 100)}%"></div>
+                        </div>
+                        <div class="flex justify-between text-sm text-gray-600 mb-3">
+                            <span>${formatearMoneda(meta.monto_actual || 0)} ahorrado</span>
+                            <span>${progreso.toFixed(1)}%</span>
+                        </div>
+                        <div class="flex justify-between items-center text-xs text-gray-500">
+                            <span>📅 ${fechaFormateada}</span>
+                            ${meta.aporte_mensual > 0 ? `<span>💰 ${formatearMoneda(meta.aporte_mensual)}/mes</span>` : ''}
+                        </div>
+                        ${!meta.completada ? `
+                            <button onclick="abrirModalActualizarMeta(${meta.id}, ${meta.monto_actual || 0}, ${meta.monto_objetivo})" 
+                                class="mt-3 w-full bg-purple-100 text-purple-700 py-2 rounded-lg text-sm font-semibold hover:bg-purple-200 transition">
+                                Actualizar Progreso
+                            </button>
+                        ` : ''}
                     </div>
-                    <span class="text-2xl">${meta.completada ? '✅' : '🎯'}</span>
-                </div>
-                <div class="w-full bg-gray-200 rounded-full h-3 mb-2">
-                    <div class="bg-purple-600 h-3 rounded-full" style="width: ${(meta.monto_actual / meta.monto_objetivo) * 100}%"></div>
-                </div>
-                <div class="flex justify-between text-sm text-gray-600">
-                    <span>${formatearMoneda(meta.monto_actual)} ahorrado</span>
-                    <span>${meta.fecha_objetivo}</span>
-                </div>
-            </div>
-        `).join('');
+                `;
+            }).join('');
+        }
+    } catch (error) {
+        console.error('Error cargando metas:', error);
+        mostrarNotificacion('Error al cargar metas', 'error');
     }
 }
 
 function abrirModalNuevaMeta() {
     document.getElementById('modalNuevaMeta').classList.remove('hidden');
+    // Limpiar formulario
+    document.getElementById('formNuevaMeta').reset();
+    // Establecer fecha mínima en hoy
+    const hoy = new Date().toISOString().split('T')[0];
+    document.getElementById('metaFecha').min = hoy;
 }
 
 function cerrarModalNuevaMeta() {
@@ -170,15 +224,125 @@ function cerrarModalNuevaMeta() {
 async function crearMeta(event) {
     event.preventDefault();
     
-    const nombre = document.getElementById('metaNombre').value;
+    const nombre = document.getElementById('metaNombre').value.trim();
     const monto = parseFloat(document.getElementById('metaMonto').value);
     const fecha = document.getElementById('metaFecha').value;
     const aporte = parseFloat(document.getElementById('metaAporteMensual').value) || 0;
     
-    // Aquí harías la llamada a la API para crear la meta
-    mostrarNotificacion('Meta creada exitosamente! 🎉');
-    cerrarModalNuevaMeta();
-    cargarMetas();
+    // Validaciones
+    if (!nombre || !monto || monto <= 0) {
+        mostrarNotificacion('Por favor completa los campos requeridos correctamente', 'warning');
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${API_URL}/usuario/metas`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                nombre,
+                monto_objetivo: monto,
+                fecha_objetivo: fecha || null,
+                aporte_mensual: aporte
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            mostrarNotificacion('Meta creada exitosamente! 🎉');
+            cerrarModalNuevaMeta();
+            cargarMetas();
+        } else {
+            mostrarNotificacion(data.message || 'Error al crear meta', 'error');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        mostrarNotificacion('Error al crear meta', 'error');
+    }
+}
+
+async function eliminarMeta(metaId) {
+    if (!confirm('¿Estás seguro de que quieres eliminar esta meta?')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${API_URL}/usuario/metas/${metaId}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            mostrarNotificacion('Meta eliminada correctamente');
+            cargarMetas();
+        } else {
+            mostrarNotificacion(data.message || 'Error al eliminar meta', 'error');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        mostrarNotificacion('Error al eliminar meta', 'error');
+    }
+}
+
+function abrirModalActualizarMeta(metaId, montoActual, montoObjetivo) {
+    const nuevoMonto = prompt(
+        `Monto actual: ${formatearMoneda(montoActual)}\nMeta: ${formatearMoneda(montoObjetivo)}\n\n¿Cuánto has ahorrado hasta ahora?`,
+        montoActual
+    );
+    
+    if (nuevoMonto === null) return; // Usuario canceló
+    
+    const monto = parseFloat(nuevoMonto);
+    
+    if (isNaN(monto) || monto < 0) {
+        mostrarNotificacion('Por favor ingresa un monto válido', 'warning');
+        return;
+    }
+    
+    actualizarMontoMeta(metaId, monto, montoObjetivo);
+}
+
+async function actualizarMontoMeta(metaId, nuevoMonto, montoObjetivo) {
+    try {
+        const completada = nuevoMonto >= montoObjetivo;
+        
+        const response = await fetch(`${API_URL}/usuario/metas/${metaId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                monto_actual: nuevoMonto,
+                completada: completada
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            if (completada) {
+                mostrarNotificacion('¡Felicidades! 🎉 Has completado tu meta de ahorro');
+            } else {
+                mostrarNotificacion('Progreso actualizado correctamente');
+            }
+            cargarMetas();
+            cargarPerfil(); // Actualizar estadísticas
+        } else {
+            mostrarNotificacion(data.message || 'Error al actualizar meta', 'error');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        mostrarNotificacion('Error al actualizar meta', 'error');
+    }
 }
 
 // ============================================
