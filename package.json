@@ -7,7 +7,7 @@
     "start": "node server.js",
     "dev": "nodemon server.js",
     "setup": "node database/setup.js",
-    "build": "node database/setup.js"
+    "build": "echo \"Build omitido, no es necesario\""
   },
   "engines": {
     "node": ">=18.0.0"
