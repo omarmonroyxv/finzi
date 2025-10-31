@@ -895,4 +895,126 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Cargar opciones al inicio
     cargarOpciones();
+    // ============================================
+// TESTIMONIOS
+// ============================================
+
+let testimoniosVisibles = 3;
+
+function cargarTestimonios() {
+    // Verificar si testimonios-data.js está cargado
+    if (typeof testimonios === 'undefined') {
+        console.warn('testimonios-data.js no está cargado');
+        return;
+    }
+
+    const container = document.getElementById('testimoniosContainer');
+    if (!container) return;
+
+    // Mostrar solo los primeros 'testimoniosVisibles'
+    const testimoniosAMostrar = testimonios.slice(0, testimoniosVisibles);
+
+    container.innerHTML = testimoniosAMostrar.map(t => `
+        <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition">
+            <!-- Header con foto y nombre -->
+            <div class="flex items-center mb-4">
+                <img src="${t.foto}" alt="${t.nombre}" 
+                     class="w-12 h-12 rounded-full mr-3"
+                     onerror="this.src='https://ui-avatars.com/api/?name=${t.nombre}&background=667eea&color=fff'">
+                <div>
+                    <h4 class="font-bold text-gray-800">${t.nombre}</h4>
+                    <p class="text-xs text-gray-500">${t.ciudad}</p>
+                </div>
+                ${t.verificado ? '<span class="ml-auto text-blue-500" title="Usuario verificado">✓</span>' : ''}
+            </div>
+
+            <!-- Rating -->
+            <div class="flex items-center mb-3">
+                ${'⭐'.repeat(t.rating)}
+                <span class="text-xs text-gray-500 ml-2">${t.fecha}</span>
+            </div>
+
+            <!-- Testimonio -->
+            <p class="text-gray-700 text-sm mb-4">${t.testimonio}</p>
+
+            <!-- Stats -->
+            <div class="grid grid-cols-2 gap-2 pt-4 border-t text-xs">
+                <div>
+                    <p class="text-gray-500">Invirtió</p>
+                    <p class="font-bold text-purple-600">${formatearMoneda(t.monto_invertido)}</p>
+                </div>
+                <div>
+                    <p class="text-gray-500">Ganará</p>
+                    <p class="font-bold text-green-600">${formatearMoneda(t.ganancia_estimada)}</p>
+                </div>
+            </div>
+
+            <!-- Opción elegida -->
+            <p class="text-xs text-gray-500 mt-2">
+                📊 Eligió: <span class="font-semibold">${t.opcion_elegida}</span>
+            </p>
+        </div>
+    `).join('');
+
+    // Mostrar/ocultar botón "Ver más"
+    const btnVerMas = document.getElementById('btnVerMasTestimonios');
+    if (btnVerMas) {
+        btnVerMas.style.display = testimoniosVisibles >= testimonios.length ? 'none' : 'inline-block';
+    }
+}
+
+function verMasTestimonios() {
+    testimoniosVisibles += 3;
+    cargarTestimonios();
+}
+
+// Event listener para el botón
+document.addEventListener('DOMContentLoaded', function() {
+    // ... tu código existente ...
+    
+    // Animar contadores de estadísticas
+    animarContadores();
+
+    // Cargar testimonios
+    cargarTestimonios();
+   
+    // Función para animar contadores
+function animarContadores() {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const element = entry.target;
+                const target = parseFloat(element.getAttribute('data-target'));
+                animateCounter(element, target);
+                observer.unobserve(element);
+            }
+        });
+    });
+
+    document.querySelectorAll('[data-target]').forEach(el => {
+        observer.observe(el);
+    });
+}
+
+function animateCounter(element, target, duration = 2000) {
+    const start = 0;
+    const increment = target / (duration / 16);
+    let current = start;
+    
+    const timer = setInterval(() => {
+        current += increment;
+        if (current >= target) {
+            element.textContent = Math.floor(target).toLocaleString('es-MX');
+            clearInterval(timer);
+        } else {
+            element.textContent = Math.floor(current).toLocaleString('es-MX');
+        }
+    }, 16);
+}
+    
+    const btnVerMas = document.getElementById('btnVerMasTestimonios');
+    if (btnVerMas) {
+        btnVerMas.addEventListener('click', verMasTestimonios);
+    }
+});
 });

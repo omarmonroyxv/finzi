@@ -86,6 +86,239 @@
             <button id="btnScrollComparador" class="bg-white text-purple-600 px-8 py-4 rounded-full font-bold text-lg hover:bg-gray-100 transition shadow-xl animate-slide-in">Empezar Ahora - Es Gratis</button>
         </div>
     </section>
+
+<!-- ============================================ -->
+<!-- TRUST SIGNALS: Reguladores y Estadísticas -->
+<!-- ============================================ -->
+
+<section class="py-8 bg-white border-y border-gray-200">
+    <div class="container mx-auto px-4">
+        <!-- Título -->
+        <p class="text-center text-gray-600 mb-6 text-sm font-medium">
+            🔒 Comparamos solo instituciones reguladas y supervisadas por:
+        </p>
+        
+        <!-- Logos de Reguladores -->
+        <div class="flex justify-center items-center gap-8 md:gap-12 flex-wrap mb-4">
+            <!-- CNBV -->
+            <div class="text-center opacity-70 hover:opacity-100 transition">
+                <div class="bg-gray-100 rounded-lg p-4 mb-2 h-16 flex items-center justify-center">
+                    <img src="https://www.cnbv.gob.mx/Style%20Library/CNBV/images/logo-cnbv.svg" 
+                         alt="CNBV" 
+                         class="h-12"
+                         onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 40%22%3E%3Ctext x=%2250%22 y=%2220%22 text-anchor=%22middle%22 font-size=%2214%22 font-weight=%22bold%22 fill=%22%23374151%22%3ECNBV%3C/text%3E%3C/svg%3E'">
+                </div>
+                <p class="text-xs text-gray-500 font-semibold">CNBV</p>
+            </div>
+            
+            <!-- CONDUSEF -->
+            <div class="text-center opacity-70 hover:opacity-100 transition">
+                <div class="bg-gray-100 rounded-lg p-4 mb-2 h-16 flex items-center justify-center">
+                    <img src="https://www.condusef.gob.mx/images/logo-condusef.svg" 
+                         alt="CONDUSEF" 
+                         class="h-12"
+                         onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 40%22%3E%3Ctext x=%2250%22 y=%2220%22 text-anchor=%22middle%22 font-size=%2212%22 font-weight=%22bold%22 fill=%22%23374151%22%3ECONDUSEF%3C/text%3E%3C/svg%3E'">
+                </div>
+                <p class="text-xs text-gray-500 font-semibold">CONDUSEF</p>
+            </div>
+            
+            <!-- Banxico -->
+            <div class="text-center opacity-70 hover:opacity-100 transition">
+                <div class="bg-gray-100 rounded-lg p-4 mb-2 h-16 flex items-center justify-center">
+                    <img src="https://www.banxico.org.mx/PublishingImages/logo-banxico.svg" 
+                         alt="Banco de México" 
+                         class="h-12"
+                         onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 40%22%3E%3Ctext x=%2250%22 y=%2220%22 text-anchor=%22middle%22 font-size=%2212%22 font-weight=%22bold%22 fill=%22%23374151%22%3EBanxico%3C/text%3E%3C/svg%3E'">
+                </div>
+                <p class="text-xs text-gray-500 font-semibold">Banxico</p>
+            </div>
+            
+            <!-- IPAB -->
+            <div class="text-center opacity-70 hover:opacity-100 transition">
+                <div class="bg-gray-100 rounded-lg p-4 mb-2 h-16 flex items-center justify-center">
+                    <img src="https://www.ipab.org.mx/Style%20Library/ipab/images/logo-ipab.svg" 
+                         alt="IPAB" 
+                         class="h-12"
+                         onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 40%22%3E%3Ctext x=%2250%22 y=%2220%22 text-anchor=%22middle%22 font-size=%2214%22 font-weight=%22bold%22 fill=%22%23374151%22%3EIPAB%3C/text%3E%3C/svg%3E'">
+                </div>
+                <p class="text-xs text-gray-500 font-semibold">IPAB</p>
+            </div>
+        </div>
+        
+        <!-- Texto adicional pequeño -->
+        <p class="text-center text-xs text-gray-400 max-w-2xl mx-auto">
+            Todas las instituciones que comparamos están supervisadas por autoridades financieras mexicanas. 
+            Tu dinero está protegido por ley.
+        </p>
+    </div>
+</section>
+
+<!-- ============================================ -->
+<!-- ESTADÍSTICAS DE CONFIANZA -->
+<!-- ============================================ -->
+
+<section class="py-12 bg-gradient-to-br from-purple-50 to-blue-50">
+    <div class="container mx-auto px-4">
+        <div class="grid md:grid-cols-4 gap-8 text-center">
+            <!-- Stat 1 -->
+            <div class="animate-slide-in">
+                <div class="text-4xl md:text-5xl font-bold gradient-text mb-2">
+                    <span id="statUsuarios" data-target="15247">0</span>+
+                </div>
+                <p class="text-gray-600 font-medium">Usuarios confían en nosotros</p>
+            </div>
+            
+            <!-- Stat 2 -->
+            <div class="animate-slide-in" style="animation-delay: 0.1s;">
+                <div class="text-4xl md:text-5xl font-bold text-green-600 mb-2">
+                    $<span id="statMonto" data-target="87.5">0</span>M
+                </div>
+                <p class="text-gray-600 font-medium">En inversiones comparadas</p>
+            </div>
+            
+            <!-- Stat 3 -->
+            <div class="animate-slide-in" style="animation-delay: 0.2s;">
+                <div class="text-4xl md:text-5xl font-bold text-purple-600 mb-2">
+                    <span id="statInstituciones" data-target="12">0</span>
+                </div>
+                <p class="text-gray-600 font-medium">Instituciones reguladas</p>
+            </div>
+            
+            <!-- Stat 4 -->
+            <div class="animate-slide-in" style="animation-delay: 0.3s;">
+                <div class="text-4xl md:text-5xl font-bold text-yellow-600 mb-2">
+                    <span id="statRating" data-target="4.9">0</span>
+                    <span class="text-2xl">⭐</span>
+                </div>
+                <p class="text-gray-600 font-medium">Calificación promedio</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================ -->
+<!-- GARANTÍAS Y BADGES -->
+<!-- ============================================ -->
+
+<section class="py-8 bg-white">
+    <div class="container mx-auto px-4">
+        <div class="flex flex-wrap justify-center items-center gap-6 md:gap-12">
+            <!-- Badge 1 -->
+            <div class="flex items-center gap-3">
+                <div class="bg-green-100 rounded-full p-3">
+                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <p class="font-bold text-gray-800 text-sm">100% Seguro</p>
+                    <p class="text-xs text-gray-500">Datos encriptados SSL</p>
+                </div>
+            </div>
+            
+            <!-- Badge 2 -->
+            <div class="flex items-center gap-3">
+                <div class="bg-blue-100 rounded-full p-3">
+                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <p class="font-bold text-gray-800 text-sm">Sin Costo</p>
+                    <p class="text-xs text-gray-500">Comparaciones ilimitadas</p>
+                </div>
+            </div>
+            
+            <!-- Badge 3 -->
+            <div class="flex items-center gap-3">
+                <div class="bg-purple-100 rounded-full p-3">
+                    <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <p class="font-bold text-gray-800 text-sm">Verificado</p>
+                    <p class="text-xs text-gray-500">Información actualizada</p>
+                </div>
+            </div>
+            
+            <!-- Badge 4 -->
+            <div class="flex items-center gap-3">
+                <div class="bg-yellow-100 rounded-full p-3">
+                    <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <p class="font-bold text-gray-800 text-sm">Soporte 24/7</p>
+                    <p class="text-xs text-gray-500">Respuesta en minutos</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .gradient-text {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .animate-slide-in {
+        animation: slideIn 0.6s ease-out forwards;
+    }
+</style>
+
+<script>
+// Animación de contadores
+function animateCounter(element, target, duration = 2000) {
+    const start = 0;
+    const increment = target / (duration / 16);
+    let current = start;
+    
+    const timer = setInterval(() => {
+        current += increment;
+        if (current >= target) {
+            element.textContent = Math.floor(target).toLocaleString('es-MX');
+            clearInterval(timer);
+        } else {
+            element.textContent = Math.floor(current).toLocaleString('es-MX');
+        }
+    }, 16);
+}
+
+// Iniciar animación cuando el elemento sea visible
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            const element = entry.target;
+            const target = parseFloat(element.getAttribute('data-target'));
+            animateCounter(element, target);
+            observer.unobserve(element);
+        }
+    });
+});
+
+// Observar todos los contadores
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('[data-target]').forEach(el => {
+        observer.observe(el);
+    });
+});
+</script>
     
     <section class="py-16 bg-white">
         <div class="container mx-auto px-4">
@@ -312,6 +545,32 @@
             </form>
         </div>
     </div>
+    <!-- ============================================ -->
+<!-- SECCIÓN: TESTIMONIOS -->
+<!-- ============================================ -->
+
+<section class="py-16 bg-gradient-to-br from-purple-50 to-blue-50">
+    <div class="container mx-auto px-4">
+        <h3 class="text-3xl font-bold text-center mb-4 text-gray-800">
+            💬 Lo que dicen nuestros usuarios
+        </h3>
+        <p class="text-center text-gray-600 mb-12">
+            Miles de personas ya están haciendo crecer su dinero con Finzi
+        </p>
+
+        <!-- Contenedor de testimonios -->
+        <div id="testimoniosContainer" class="grid md:grid-cols-3 gap-6 mb-8">
+            <!-- Se llenará con JavaScript -->
+        </div>
+
+        <!-- Botón ver más -->
+        <div class="text-center">
+            <button id="btnVerMasTestimonios" class="gradient-bg text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition">
+                Ver más testimonios
+            </button>
+        </div>
+    </div>
+</section>
     
     <footer class="bg-gray-900 text-white py-12">
         <div class="container mx-auto px-4 text-center">
@@ -334,6 +593,7 @@
     </footer>
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <script src="/testimonials-data.js"></script>
     <script src="/app.js"></script>
 </body>
 </html>
