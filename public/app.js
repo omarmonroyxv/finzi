@@ -59,13 +59,143 @@ async function cargarOpciones() {
     }
 }
 
+// ============================================
+// VARIABLES GLOBALES
+// ============================================
+let opcionesFiltradas = [];
+
+// ============================================
+// RENDERIZAR TABLA COMPARATIVA
+// ============================================
+
 function renderizarOpciones() {
-    const grid = document.getElementById('opcionesGrid');
+    opcionesFiltradas = [...opcionesInversion];
+    aplicarFiltros();
+    
     document.getElementById('loadingOpciones').classList.add('hidden');
     
-    console.log('Renderizando', opcionesInversion.length, 'opciones');
+    // Detectar si es móvil
+    const esMobile = window.innerWidth < 768;
     
-    grid.innerHTML = opcionesInversion.map(opcion => `
+    if (esMobile) {
+        renderizarCards();
+    } else {
+        renderizarTabla();
+    }
+}
+
+function renderizarTabla() {
+    const tbody = document.getElementById('bodyTablaComparativa');
+    const tabla = document.getElementById('tablaComparativa');
+    const grid = document.getElementById('opcionesGrid');
+    const sinResultados = document.getElementById('sinResultados');
+    
+    // Mostrar tabla, ocultar grid
+    tabla.classList.remove('hidden');
+    grid.classList.add('hidden');
+    
+    if (opcionesFiltradas.length === 0) {
+        tabla.classList.add('hidden');
+        sinResultados.classList.remove('hidden');
+        actualizarContador(0);
+        return;
+    }
+    
+    sinResultados.classList.add('hidden');
+    actualizarContador(opcionesFiltradas.length);
+    
+    tbody.innerHTML = opcionesFiltradas.map((opcion, index) => `
+        <tr class="border-b hover:bg-purple-50 transition ${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}">
+            <!-- PRODUCTO -->
+            <td class="px-6 py-4">
+                <div class="flex items-center">
+                    ${opcion.destacado ? '<span class="text-2xl mr-2">⭐</span>' : ''}
+                    <div>
+                        <p class="font-bold text-gray-800">${opcion.nombre}</p>
+                        <p class="text-sm text-gray-600">${opcion.institucion}</p>
+                        <p class="text-xs text-gray-500 mt-1">${opcion.tipo}</p>
+                    </div>
+                </div>
+            </td>
+            
+            <!-- RENDIMIENTO -->
+            <td class="px-6 py-4 text-center">
+                <div class="inline-block bg-gradient-to-br from-purple-500 to-purple-700 text-white px-4 py-2 rounded-lg">
+                    <p class="text-2xl font-bold">${opcion.tasa_anual}%</p>
+                    <p class="text-xs opacity-80">anual</p>
+                </div>
+            </td>
+            
+            <!-- INVERSIÓN MÍNIMA -->
+            <td class="px-6 py-4 text-center">
+                <p class="text-lg font-semibold text-gray-800">${formatearMoneda(opcion.monto_minimo)}</p>
+                ${opcion.plazo_minimo_dias > 0 ? 
+                    `<p class="text-xs text-gray-500 mt-1">${opcion.plazo_minimo_dias} días mínimo</p>` : 
+                    '<p class="text-xs text-green-600 mt-1">Sin plazo mínimo</p>'
+                }
+            </td>
+            
+            <!-- RIESGO -->
+            <td class="px-6 py-4 text-center">
+                <span class="inline-block px-3 py-1 rounded-full text-sm font-semibold ${getRiesgoColor(opcion.nivel_riesgo)}">
+                    ${getRiesgoTexto(opcion.nivel_riesgo)}
+                </span>
+            </td>
+            
+            <!-- LIQUIDEZ -->
+            <td class="px-6 py-4 text-center">
+                <span class="inline-block px-3 py-1 rounded-full text-sm font-semibold ${getLiquidezColor(opcion.liquidez)}">
+                    ${opcion.liquidez.charAt(0).toUpperCase() + opcion.liquidez.slice(1)}
+                </span>
+            </td>
+            
+            <!-- ACCIÓN -->
+            <td class="px-6 py-4 text-center">
+                <button 
+                    data-opcion-id="${opcion.id}"
+                    class="btn-invertir gradient-bg text-white px-6 py-2 rounded-lg font-semibold hover:opacity-90 transition whitespace-nowrap"
+                >
+                    Invertir →
+                </button>
+                <button 
+                    onclick="verDetalles(${opcion.id})"
+                    class="block w-full mt-2 text-purple-600 text-sm hover:text-purple-800 font-semibold"
+                >
+                    Ver detalles
+                </button>
+            </td>
+        </tr>
+    `).join('');
+    
+    // Agregar event listeners
+    document.querySelectorAll('.btn-invertir').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const opcionId = this.getAttribute('data-opcion-id');
+            abrirEnlaceInversion(opcionId);
+        });
+    });
+}
+
+function renderizarCards() {
+    const grid = document.getElementById('opcionesGrid');
+    const tabla = document.getElementById('tablaComparativa');
+    const sinResultados = document.getElementById('sinResultados');
+    
+    // Mostrar grid, ocultar tabla
+    grid.classList.remove('hidden');
+    tabla.classList.add('hidden');
+    
+    if (opcionesFiltradas.length === 0) {
+        grid.classList.add('hidden');
+        sinResultados.classList.remove('hidden');
+        actualizarContador(0);
+        return;
+    }
+    
+    sinResultados.classList.add('hidden');
+    actualizarContador(opcionesFiltradas.length);
+    
+    grid.innerHTML = opcionesFiltradas.map(opcion => `
         <div class="option-card bg-white rounded-xl p-6 shadow-lg">
             <div class="flex justify-between items-start mb-4">
                 <div>
@@ -87,7 +217,7 @@ function renderizarOpciones() {
                 </div>
                 <div class="flex justify-between">
                     <span class="text-gray-600">Riesgo:</span>
-                    <span class="font-semibold capitalize">${opcion.nivel_riesgo.replace('_', ' ')}</span>
+                    <span class="font-semibold">${getRiesgoTexto(opcion.nivel_riesgo)}</span>
                 </div>
                 <div class="flex justify-between">
                     <span class="text-gray-600">Liquidez:</span>
@@ -105,7 +235,7 @@ function renderizarOpciones() {
         </div>
     `).join('');
     
-    // Agregar event listeners a los botones de invertir
+    // Agregar event listeners
     document.querySelectorAll('.btn-invertir').forEach(btn => {
         btn.addEventListener('click', function() {
             const opcionId = this.getAttribute('data-opcion-id');
@@ -114,6 +244,142 @@ function renderizarOpciones() {
     });
 }
 
+// ============================================
+// SISTEMA DE FILTROS
+// ============================================
+
+function aplicarFiltros() {
+    const nombre = document.getElementById('filtroNombre')?.value.toLowerCase() || '';
+    const montoMin = parseFloat(document.getElementById('filtroMonto')?.value) || 0;
+    const riesgo = document.getElementById('filtroRiesgo')?.value || '';
+    const ordenar = document.getElementById('ordenarPor')?.value || 'tasa';
+    
+    // Filtrar
+    opcionesFiltradas = opcionesInversion.filter(opcion => {
+        const cumpleNombre = !nombre || 
+            opcion.nombre.toLowerCase().includes(nombre) || 
+            opcion.institucion.toLowerCase().includes(nombre) ||
+            opcion.tipo.toLowerCase().includes(nombre);
+        
+        const cumpleMonto = montoMin === 0 || opcion.monto_minimo <= montoMin;
+        const cumpleRiesgo = !riesgo || opcion.nivel_riesgo === riesgo;
+        
+        return cumpleNombre && cumpleMonto && cumpleRiesgo;
+    });
+    
+    // Ordenar
+    if (ordenar === 'tasa') {
+        opcionesFiltradas.sort((a, b) => b.tasa_anual - a.tasa_anual);
+    } else if (ordenar === 'minimo') {
+        opcionesFiltradas.sort((a, b) => a.monto_minimo - b.monto_minimo);
+    } else if (ordenar === 'nombre') {
+        opcionesFiltradas.sort((a, b) => a.nombre.localeCompare(b.nombre));
+    }
+    
+    // Re-renderizar
+    const esMobile = window.innerWidth < 768;
+    if (esMobile) {
+        renderizarCards();
+    } else {
+        renderizarTabla();
+    }
+}
+
+function limpiarFiltros() {
+    document.getElementById('filtroNombre').value = '';
+    document.getElementById('filtroMonto').value = '';
+    document.getElementById('filtroRiesgo').value = '';
+    document.getElementById('ordenarPor').value = 'tasa';
+    aplicarFiltros();
+}
+
+function actualizarContador(cantidad) {
+    const span = document.querySelector('#resultadosCount span');
+    if (span) {
+        span.textContent = cantidad;
+    }
+}
+
+// ============================================
+// FUNCIONES AUXILIARES
+// ============================================
+
+function getRiesgoColor(riesgo) {
+    const colores = {
+        'muy_bajo': 'bg-green-100 text-green-800',
+        'bajo': 'bg-blue-100 text-blue-800',
+        'medio': 'bg-yellow-100 text-yellow-800',
+        'alto': 'bg-red-100 text-red-800'
+    };
+    return colores[riesgo] || 'bg-gray-100 text-gray-800';
+}
+
+function getRiesgoTexto(riesgo) {
+    const textos = {
+        'muy_bajo': 'Muy Bajo',
+        'bajo': 'Bajo',
+        'medio': 'Medio',
+        'alto': 'Alto'
+    };
+    return textos[riesgo] || riesgo;
+}
+
+function getLiquidezColor(liquidez) {
+    const colores = {
+        'inmediata': 'bg-green-100 text-green-800',
+        'alta': 'bg-blue-100 text-blue-800',
+        'media': 'bg-yellow-100 text-yellow-800',
+        'baja': 'bg-red-100 text-red-800'
+    };
+    return colores[liquidez] || 'bg-gray-100 text-gray-800';
+}
+
+function verDetalles(opcionId) {
+    const opcion = opcionesInversion.find(o => o.id == opcionId);
+    if (!opcion) return;
+    
+    alert(`
+📊 ${opcion.nombre}
+🏦 ${opcion.institucion}
+
+💰 Rendimiento: ${opcion.tasa_anual}% anual
+💵 Mínimo: ${formatearMoneda(opcion.monto_minimo)}
+📊 Riesgo: ${getRiesgoTexto(opcion.nivel_riesgo)}
+⚡ Liquidez: ${opcion.liquidez}
+
+${opcion.descripcion}
+
+💳 Comisión apertura: ${opcion.comision_apertura}%
+💳 Comisión manejo: ${opcion.comision_manejo}%
+    `);
+}
+
+// ============================================
+// EVENT LISTENERS PARA FILTROS
+// ============================================
+
+// Agregar al DOMContentLoaded existente:
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Finzi cargado');
+    
+    // ... código existente ...
+    
+    // Event listeners para filtros
+    document.getElementById('filtroNombre')?.addEventListener('input', aplicarFiltros);
+    document.getElementById('filtroMonto')?.addEventListener('change', aplicarFiltros);
+    document.getElementById('filtroRiesgo')?.addEventListener('change', aplicarFiltros);
+    document.getElementById('ordenarPor')?.addEventListener('change', aplicarFiltros);
+    
+    // Responsive: cambiar vista según tamaño
+    window.addEventListener('resize', () => {
+        if (opcionesInversion.length > 0) {
+            renderizarOpciones();
+        }
+    });
+    
+    // Cargar opciones
+    cargarOpciones();
+});
 async function abrirEnlaceInversion(opcionId) {
     if (!token) {
         mostrarNotificacion('Debes iniciar sesión para invertir', 'warning');

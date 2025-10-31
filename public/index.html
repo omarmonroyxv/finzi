@@ -18,6 +18,45 @@
         .animate-slide-in { animation: slideIn 0.5s ease-out; }
         .loading { border: 3px solid #f3f3f3; border-top: 3px solid #667eea; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        /* Tabla responsive */
+        @media (max-width: 768px) {
+            #tablaComparativa {
+                display: none !important;
+            }
+            #opcionesGrid {
+                display: grid !important;
+            }
+        }
+
+        /* Animación de hover en filas */
+        tbody tr {
+            transition: all 0.2s ease;
+        }
+
+        tbody tr:hover {
+            transform: scale(1.01);
+        }
+
+        /* Scroll horizontal suave */
+        .overflow-x-auto {
+            scrollbar-width: thin;
+            scrollbar-color: #667eea #f3f4f6;
+        }
+
+        .overflow-x-auto::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .overflow-x-auto::-webkit-scrollbar-track {
+            background: #f3f4f6;
+            border-radius: 10px;
+        }
+
+        .overflow-x-auto::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 10px;
+        }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -30,10 +69,6 @@
                         <path d="M40 20 L40 60 M25 30 L50 30 M25 40 L45 40" stroke="#667eea" stroke-width="5" stroke-linecap="round"/>
                         <text x="85" y="55" font-family="Poppins, sans-serif" font-size="48" font-weight="800" fill="white">finzi</text>
                     </svg>
-                    <p style="text-align:center; margin:10px 0 0 0; font-size:12px; color:white;"></p>
-                            </linearGradient>
-                        </defs>
-                    </svg>
                 </div>
                 <div class="flex items-center space-x-4">
                     <button id="btnLogin" class="px-4 py-2 rounded-lg hover:bg-white/10 transition">Iniciar Sesión</button>
@@ -42,6 +77,7 @@
             </div>
         </div>
     </nav>
+    
     <section class="gradient-bg text-white py-20">
         <div class="container mx-auto px-4 text-center">
             <h2 class="text-5xl font-bold mb-6 animate-slide-in">Tu dinero puede crecer más 🚀</h2>
@@ -49,40 +85,176 @@
             <button id="btnScrollComparador" class="bg-white text-purple-600 px-8 py-4 rounded-full font-bold text-lg hover:bg-gray-100 transition shadow-xl animate-slide-in">Empezar Ahora - Es Gratis</button>
         </div>
     </section>
+    
     <section class="py-16 bg-white">
         <div class="container mx-auto px-4">
             <h3 class="text-3xl font-bold text-center mb-12 text-gray-800">¿Por qué usar Finzi?</h3>
             <div class="grid md:grid-cols-3 gap-8">
-                <div class="text-center card-hover bg-gray-50 p-8 rounded-xl"><div class="text-5xl mb-4">🎯</div><h4 class="text-xl font-bold mb-3">Comparamos por ti</h4><p class="text-gray-600">Analizamos CETES, fondos, cuentas de ahorro y más. Tú solo eliges la mejor opción.</p></div>
-                <div class="text-center card-hover bg-gray-50 p-8 rounded-xl"><div class="text-5xl mb-4">💰</div><h4 class="text-xl font-bold mb-3">Calcula tus ganancias</h4><p class="text-gray-600">Ve exactamente cuánto ganarás mes a mes con simulaciones precisas.</p></div>
-                <div class="text-center card-hover bg-gray-50 p-8 rounded-xl"><div class="text-5xl mb-4">🔒</div><h4 class="text-xl font-bold mb-3">100% seguro</h4><p class="text-gray-600">Solo recomendamos instituciones reguladas por la CNBV y CONDUSEF.</p></div>
+                <div class="text-center card-hover bg-gray-50 p-8 rounded-xl">
+                    <div class="text-5xl mb-4">🎯</div>
+                    <h4 class="text-xl font-bold mb-3">Comparamos por ti</h4>
+                    <p class="text-gray-600">Analizamos CETES, fondos, cuentas de ahorro y más. Tú solo eliges la mejor opción.</p>
+                </div>
+                <div class="text-center card-hover bg-gray-50 p-8 rounded-xl">
+                    <div class="text-5xl mb-4">💰</div>
+                    <h4 class="text-xl font-bold mb-3">Calcula tus ganancias</h4>
+                    <p class="text-gray-600">Ve exactamente cuánto ganarás mes a mes con simulaciones precisas.</p>
+                </div>
+                <div class="text-center card-hover bg-gray-50 p-8 rounded-xl">
+                    <div class="text-5xl mb-4">🔒</div>
+                    <h4 class="text-xl font-bold mb-3">100% seguro</h4>
+                    <p class="text-gray-600">Solo recomendamos instituciones reguladas por la CNBV y CONDUSEF.</p>
+                </div>
             </div>
         </div>
     </section>
+    
+    <!-- SECCIÓN: COMPARADOR CON TABLA -->
     <section id="comparador" class="py-16 bg-gray-50">
         <div class="container mx-auto px-4">
-            <h3 class="text-3xl font-bold text-center mb-4 text-gray-800">Opciones de Inversión</h3>
-            <p class="text-center text-gray-600 mb-12">Compara rendimientos y encuentra la mejor opción para ti</p>
-            <div id="loadingOpciones" class="flex justify-center items-center py-12"><div class="loading"></div></div>
-            <div id="opcionesGrid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12"></div>
+            <h3 class="text-3xl font-bold text-center mb-4 text-gray-800">Compara y Elige la Mejor Inversión</h3>
+            <p class="text-center text-gray-600 mb-8">Todas las opciones reguladas por CNBV. Actualizado en tiempo real.</p>
+            
+            <!-- FILTROS -->
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                <div class="grid md:grid-cols-4 gap-4">
+                    <!-- Búsqueda -->
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">🔍 Buscar</label>
+                        <input 
+                            type="text" 
+                            id="filtroNombre" 
+                            placeholder="Nombre o institución..."
+                            class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none"
+                        />
+                    </div>
+                    
+                    <!-- Filtro por Monto -->
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">💰 Tengo para invertir</label>
+                        <select id="filtroMonto" class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none">
+                            <option value="">Cualquier monto</option>
+                            <option value="100">Desde $100</option>
+                            <option value="1000">Desde $1,000</option>
+                            <option value="5000">Desde $5,000</option>
+                            <option value="10000">Desde $10,000</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Filtro por Riesgo -->
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">📊 Nivel de riesgo</label>
+                        <select id="filtroRiesgo" class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none">
+                            <option value="">Cualquier riesgo</option>
+                            <option value="muy_bajo">Muy bajo</option>
+                            <option value="bajo">Bajo</option>
+                            <option value="medio">Medio</option>
+                            <option value="alto">Alto</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Ordenar por -->
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">⬆️ Ordenar por</label>
+                        <select id="ordenarPor" class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none">
+                            <option value="tasa">Mayor rendimiento</option>
+                            <option value="minimo">Menor inversión mínima</option>
+                            <option value="nombre">Nombre A-Z</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="flex justify-between items-center mt-4">
+                    <p id="resultadosCount" class="text-sm text-gray-600">Mostrando <span class="font-bold">0</span> opciones</p>
+                    <button onclick="limpiarFiltros()" class="text-purple-600 text-sm font-semibold hover:text-purple-800">
+                        Limpiar filtros
+                    </button>
+                </div>
+            </div>
+
+            <!-- LOADING -->
+            <div id="loadingOpciones" class="flex justify-center items-center py-12">
+                <div class="loading"></div>
+            </div>
+
+            <!-- TABLA COMPARATIVA (Desktop) -->
+            <div id="tablaComparativa" class="hidden bg-white rounded-xl shadow-lg overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="gradient-bg text-white">
+                            <tr>
+                                <th class="px-6 py-4 text-left text-sm font-bold">Producto</th>
+                                <th class="px-6 py-4 text-center text-sm font-bold">Rendimiento Anual</th>
+                                <th class="px-6 py-4 text-center text-sm font-bold">Inversión Mínima</th>
+                                <th class="px-6 py-4 text-center text-sm font-bold">Riesgo</th>
+                                <th class="px-6 py-4 text-center text-sm font-bold">Liquidez</th>
+                                <th class="px-6 py-4 text-center text-sm font-bold">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bodyTablaComparativa">
+                            <!-- Se llenará con JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- VISTA MÓVIL (Cards) -->
+            <div id="opcionesGrid" class="hidden grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Se llenará con JavaScript -->
+            </div>
+
+            <!-- MENSAJE: Sin resultados -->
+            <div id="sinResultados" class="hidden text-center py-12">
+                <div class="text-6xl mb-4">🔍</div>
+                <h4 class="text-xl font-bold text-gray-800 mb-2">No encontramos opciones</h4>
+                <p class="text-gray-600">Intenta ajustar los filtros o buscar algo diferente</p>
+            </div>
         </div>
     </section>
+    
     <section class="py-16 bg-white">
         <div class="container mx-auto px-4 max-w-4xl">
             <h3 class="text-3xl font-bold text-center mb-12 text-gray-800">📊 Calcula tu Proyección</h3>
             <div class="bg-gray-50 rounded-2xl p-8 shadow-lg">
                 <div class="grid md:grid-cols-2 gap-6 mb-6">
-                    <div><label class="block text-sm font-semibold text-gray-700 mb-2">¿Cuánto quieres invertir?</label><div class="relative"><span class="absolute left-3 top-3 text-gray-500">$</span><input type="number" id="inputMontoInicial" value="10000" class="w-full pl-8 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none" placeholder="10,000"></div></div>
-                    <div><label class="block text-sm font-semibold text-gray-700 mb-2">¿Cuánto ahorrarás mensualmente?</label><div class="relative"><span class="absolute left-3 top-3 text-gray-500">$</span><input type="number" id="inputAportesMensuales" value="2000" class="w-full pl-8 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none" placeholder="2,000"></div></div>
-                    <div><label class="block text-sm font-semibold text-gray-700 mb-2">¿Por cuántos meses?</label><input type="number" id="inputMeses" value="12" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none" placeholder="12"></div>
-                    <div><label class="block text-sm font-semibold text-gray-700 mb-2">Rendimiento anual esperado (%)</label><input type="number" id="inputTasa" value="15" step="0.5" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none" placeholder="15"></div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">¿Cuánto quieres invertir?</label>
+                        <div class="relative">
+                            <span class="absolute left-3 top-3 text-gray-500">$</span>
+                            <input type="number" id="inputMontoInicial" value="10000" class="w-full pl-8 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none" placeholder="10,000">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">¿Cuánto ahorrarás mensualmente?</label>
+                        <div class="relative">
+                            <span class="absolute left-3 top-3 text-gray-500">$</span>
+                            <input type="number" id="inputAportesMensuales" value="2000" class="w-full pl-8 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none" placeholder="2,000">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">¿Por cuántos meses?</label>
+                        <input type="number" id="inputMeses" value="12" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none" placeholder="12">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Rendimiento anual esperado (%)</label>
+                        <input type="number" id="inputTasa" value="15" step="0.5" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none" placeholder="15">
+                    </div>
                 </div>
                 <button id="btnCalcular" class="w-full gradient-bg text-white py-4 rounded-lg font-bold text-lg hover:opacity-90 transition">Calcular Proyección</button>
                 <div id="resultadosProyeccion" class="mt-8 hidden">
                     <div class="grid md:grid-cols-3 gap-4 mb-6">
-                        <div class="bg-white p-6 rounded-xl shadow"><p class="text-sm text-gray-600 mb-1">Total Aportado</p><p id="resultTotalAportado" class="text-2xl font-bold text-gray-800">$0</p></div>
-                        <div class="bg-white p-6 rounded-xl shadow"><p class="text-sm text-gray-600 mb-1">Ganancias</p><p id="resultGanancias" class="text-2xl font-bold text-green-600">$0</p></div>
-                        <div class="bg-gradient-to-br from-purple-500 to-purple-700 p-6 rounded-xl shadow"><p class="text-sm text-white/80 mb-1">Monto Final</p><p id="resultMontoFinal" class="text-2xl font-bold text-white">$0</p></div>
+                        <div class="bg-white p-6 rounded-xl shadow">
+                            <p class="text-sm text-gray-600 mb-1">Total Aportado</p>
+                            <p id="resultTotalAportado" class="text-2xl font-bold text-gray-800">$0</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow">
+                            <p class="text-sm text-gray-600 mb-1">Ganancias</p>
+                            <p id="resultGanancias" class="text-2xl font-bold text-green-600">$0</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-purple-500 to-purple-700 p-6 rounded-xl shadow">
+                            <p class="text-sm text-white/80 mb-1">Monto Final</p>
+                            <p id="resultMontoFinal" class="text-2xl font-bold text-white">$0</p>
+                        </div>
                     </div>
                     <div class="bg-white rounded-xl p-6 shadow-lg mb-6">
                         <h4 class="text-lg font-bold text-gray-800 mb-4">📈 Proyección de Crecimiento</h4>
@@ -90,36 +262,56 @@
                     </div>
                     <div class="bg-white rounded-xl p-6 shadow-lg">
                         <h4 class="text-lg font-bold text-gray-800 mb-4">🔄 Comparación de Escenarios</h4>
-                        <div class="mb-4 text-sm text-gray-600"><p>Compara diferentes tasas de rendimiento para tu inversión:</p></div>
+                        <div class="mb-4 text-sm text-gray-600">
+                            <p>Compara diferentes tasas de rendimiento para tu inversión:</p>
+                        </div>
                         <canvas id="graficaComparacion"></canvas>
                     </div>
                 </div>
             </div>
         </div>
     </section>
+    
     <div id="modalRegistro" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-md w-full p-8 animate-slide-in">
             <h3 class="text-2xl font-bold mb-6">Crear Cuenta</h3>
             <form id="formRegistro">
-                <div class="mb-4"><label class="block text-sm font-semibold text-gray-700 mb-2">Nombre completo</label><input type="text" id="regNombre" required class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none" placeholder="Juan Pérez"></div>
-                <div class="mb-4"><label class="block text-sm font-semibold text-gray-700 mb-2">Email</label><input type="email" id="regEmail" required class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none" placeholder="tu@email.com"></div>
-                <div class="mb-6"><label class="block text-sm font-semibold text-gray-700 mb-2">Contraseña</label><input type="password" id="regPassword" required minlength="6" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none" placeholder="Mínimo 6 caracteres"></div>
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Nombre completo</label>
+                    <input type="text" id="regNombre" required class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none" placeholder="Juan Pérez">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Email</label>
+                    <input type="email" id="regEmail" required class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none" placeholder="tu@email.com">
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Contraseña</label>
+                    <input type="password" id="regPassword" required minlength="6" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none" placeholder="Mínimo 6 caracteres">
+                </div>
                 <button type="submit" class="w-full gradient-bg text-white py-3 rounded-lg font-bold hover:opacity-90 transition">Registrarse Gratis</button>
                 <button type="button" id="btnCerrarRegistro" class="w-full mt-3 text-gray-600 py-2 hover:text-gray-800 transition">Cancelar</button>
             </form>
         </div>
     </div>
+    
     <div id="modalLogin" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-md w-full p-8 animate-slide-in">
             <h3 class="text-2xl font-bold mb-6">Iniciar Sesión</h3>
             <form id="formLogin">
-                <div class="mb-4"><label class="block text-sm font-semibold text-gray-700 mb-2">Email</label><input type="email" id="loginEmail" required class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none" placeholder="tu@email.com"></div>
-                <div class="mb-6"><label class="block text-sm font-semibold text-gray-700 mb-2">Contraseña</label><input type="password" id="loginPassword" required class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none" placeholder="Tu contraseña"></div>
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Email</label>
+                    <input type="email" id="loginEmail" required class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none" placeholder="tu@email.com">
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Contraseña</label>
+                    <input type="password" id="loginPassword" required class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none" placeholder="Tu contraseña">
+                </div>
                 <button type="submit" class="w-full gradient-bg text-white py-3 rounded-lg font-bold hover:opacity-90 transition">Entrar</button>
                 <button type="button" id="btnCerrarLogin" class="w-full mt-3 text-gray-600 py-2 hover:text-gray-800 transition">Cancelar</button>
             </form>
         </div>
     </div>
+    
     <footer class="bg-gray-900 text-white py-12">
         <div class="container mx-auto px-4 text-center">
             <div class="flex items-center justify-center mb-4">
@@ -139,6 +331,7 @@
             <p class="text-sm text-gray-500">© 2025 Finzi. No somos una institución financiera. <br>Comparamos opciones de inversión reguladas por CNBV y CONDUSEF.</p>
         </div>
     </footer>
+    
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
     <script src="/app.js"></script>
 </body>
