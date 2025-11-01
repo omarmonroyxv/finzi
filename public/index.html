@@ -545,27 +545,33 @@ document.addEventListener('DOMContentLoaded', () => {
             </form>
         </div>
     </div>
-    <!-- ============================================ -->
+<!-- ============================================ -->
 <!-- SECCIÓN: TESTIMONIOS -->
 <!-- ============================================ -->
 
 <section class="py-16 bg-gradient-to-br from-purple-50 to-blue-50">
     <div class="container mx-auto px-4">
-        <h3 class="text-3xl font-bold text-center mb-4 text-gray-800">
-            💬 Lo que dicen nuestros usuarios
-        </h3>
-        <p class="text-center text-gray-600 mb-12">
-            Miles de personas ya están haciendo crecer su dinero con Finzi
-        </p>
+        <div class="text-center mb-12">
+            <h3 class="text-3xl md:text-4xl font-bold mb-4 text-gray-800">
+                💬 Lo que dicen nuestros usuarios
+            </h3>
+            <p class="text-gray-600 text-lg">
+                Miles de personas ya están haciendo crecer su dinero con Finzi
+            </p>
+        </div>
 
         <!-- Contenedor de testimonios -->
-        <div id="testimoniosContainer" class="grid md:grid-cols-3 gap-6 mb-8">
-            <!-- Se llenará con JavaScript -->
+        <div id="testimoniosContainer" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <!-- Loading placeholder -->
+            <div class="col-span-full text-center py-12">
+                <div class="inline-block loading"></div>
+                <p class="text-gray-600 mt-4">Cargando testimonios...</p>
+            </div>
         </div>
 
         <!-- Botón ver más -->
         <div class="text-center">
-            <button id="btnVerMasTestimonios" class="gradient-bg text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition">
+            <button id="btnVerMasTestimonios" class="gradient-bg text-white px-8 py-3 rounded-lg font-semibold hover:opacity-90 transition shadow-lg">
                 Ver más testimonios
             </button>
         </div>

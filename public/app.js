@@ -362,22 +362,37 @@ ${opcion.descripcion}
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 Finzi cargado');
     
-    // ... código existente ...
+    // ... tu código existente ...
     
-    // Event listeners para filtros
+    // Event listeners para filtros (ya existentes)
     document.getElementById('filtroNombre')?.addEventListener('input', aplicarFiltros);
     document.getElementById('filtroMonto')?.addEventListener('change', aplicarFiltros);
     document.getElementById('filtroRiesgo')?.addEventListener('change', aplicarFiltros);
     document.getElementById('ordenarPor')?.addEventListener('change', aplicarFiltros);
     
-    // Responsive: cambiar vista según tamaño
+    // Responsive: cambiar vista según tamaño (ya existe)
     window.addEventListener('resize', () => {
         if (opcionesInversion.length > 0) {
             renderizarOpciones();
         }
     });
     
-    // Cargar opciones
+    // ===== NUEVO: Cargar testimonios =====
+    console.log('📋 Iniciando carga de testimonios...');
+    setTimeout(() => {
+        cargarTestimonios();
+    }, 500); // Esperar 500ms para asegurar que todo esté listo
+    
+    // Event listener para botón "Ver más testimonios"
+    const btnVerMas = document.getElementById('btnVerMasTestimonios');
+    if (btnVerMas) {
+        btnVerMas.addEventListener('click', verMasTestimonios);
+        console.log('✅ Event listener agregado al botón "Ver más"');
+    } else {
+        console.warn('⚠️ No se encontró #btnVerMasTestimonios');
+    }
+    
+    // Cargar opciones de inversión
     cargarOpciones();
 });
 async function abrirEnlaceInversion(opcionId) {
@@ -1016,5 +1031,126 @@ function animateCounter(element, target, duration = 2000) {
     if (btnVerMas) {
         btnVerMas.addEventListener('click', verMasTestimonios);
     }
+    // ============================================
+// CARGAR TESTIMONIOS
+// ============================================
+
+let testimoniosVisibles = 3;
+
+function cargarTestimonios() {
+    console.log('🔄 Intentando cargar testimonios...');
+    
+    // Verificar si testimonios-data.js está cargado
+    if (typeof testimonios === 'undefined') {
+        console.error('❌ testimonios-data.js NO está cargado');
+        
+        // Mostrar mensaje de error
+        const container = document.getElementById('testimoniosContainer');
+        if (container) {
+            container.innerHTML = `
+                <div class="col-span-full text-center py-12">
+                    <div class="text-6xl mb-4">⚠️</div>
+                    <p class="text-gray-600">Error al cargar testimonios</p>
+                    <p class="text-sm text-gray-500">Recarga la página</p>
+                </div>
+            `;
+        }
+        return;
+    }
+
+    console.log(`✅ testimonios-data.js cargado. Total: ${testimonios.length} testimonios`);
+
+    const container = document.getElementById('testimoniosContainer');
+    if (!container) {
+        console.error('❌ No se encontró #testimoniosContainer');
+        return;
+    }
+
+    // Mostrar solo los primeros 'testimoniosVisibles'
+    const testimoniosAMostrar = testimonios.slice(0, testimoniosVisibles);
+    console.log(`📊 Mostrando ${testimoniosAMostrar.length} testimonios`);
+
+    if (testimoniosAMostrar.length === 0) {
+        container.innerHTML = `
+            <div class="col-span-full text-center py-12">
+                <div class="text-6xl mb-4">🔍</div>
+                <p class="text-gray-600">No hay testimonios disponibles</p>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = testimoniosAMostrar.map(t => `
+        <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition transform hover:-translate-y-1">
+            <!-- Header con foto y nombre -->
+            <div class="flex items-center mb-4">
+                <img src="${t.foto}" 
+                     alt="${t.nombre}" 
+                     class="w-14 h-14 rounded-full mr-3 object-cover border-2 border-purple-200"
+                     onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(t.nombre)}&background=667eea&color=fff&size=56'">
+                <div class="flex-1">
+                    <h4 class="font-bold text-gray-800 flex items-center">
+                        ${t.nombre}
+                        ${t.verificado ? '<span class="ml-2 text-blue-500 text-sm" title="Usuario verificado">✓</span>' : ''}
+                    </h4>
+                    <p class="text-xs text-gray-500">${t.ciudad} • ${t.edad} años</p>
+                </div>
+            </div>
+
+            <!-- Rating -->
+            <div class="flex items-center mb-3">
+                <div class="text-yellow-400">
+                    ${'⭐'.repeat(t.rating)}
+                </div>
+                <span class="text-xs text-gray-500 ml-2">${t.fecha}</span>
+            </div>
+
+            <!-- Testimonio -->
+            <p class="text-gray-700 text-sm leading-relaxed mb-4">
+                "${t.testimonio}"
+            </p>
+
+            <!-- Stats -->
+            <div class="grid grid-cols-2 gap-3 pt-4 border-t border-gray-100">
+                <div class="bg-purple-50 p-3 rounded-lg">
+                    <p class="text-xs text-gray-600 mb-1">💰 Invirtió</p>
+                    <p class="font-bold text-purple-600">${formatearMoneda(t.monto_invertido)}</p>
+                </div>
+                <div class="bg-green-50 p-3 rounded-lg">
+                    <p class="text-xs text-gray-600 mb-1">📈 Ganará</p>
+                    <p class="font-bold text-green-600">${formatearMoneda(t.ganancia_estimada)}</p>
+                </div>
+            </div>
+
+            <!-- Opción elegida -->
+            <div class="mt-3 pt-3 border-t border-gray-100">
+                <p class="text-xs text-gray-600">
+                    <span class="font-semibold text-purple-600">${t.opcion_elegida}</span>
+                    ${t.plan_meses ? ` • Plan de ${t.plan_meses} meses` : ''}
+                </p>
+            </div>
+        </div>
+    `).join('');
+
+    // Mostrar/ocultar botón "Ver más"
+    const btnVerMas = document.getElementById('btnVerMasTestimonios');
+    if (btnVerMas) {
+        if (testimoniosVisibles >= testimonios.length) {
+            btnVerMas.style.display = 'none';
+        } else {
+            btnVerMas.style.display = 'inline-block';
+            btnVerMas.textContent = `Ver más testimonios (${testimonios.length - testimoniosVisibles} restantes)`;
+        }
+    }
+
+    console.log('✅ Testimonios cargados correctamente');
+}
+
+function verMasTestimonios() {
+    console.log('🔄 Cargando más testimonios...');
+    testimoniosVisibles += 3;
+    cargarTestimonios();
+}
+
 });
 });
