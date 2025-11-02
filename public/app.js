@@ -196,41 +196,39 @@ function renderizarCards() {
     actualizarContador(opcionesFiltradas.length);
     
     grid.innerHTML = opcionesFiltradas.map(opcion => `
-        <div class="option-card bg-white rounded-xl p-6 shadow-lg">
-            <div class="flex justify-between items-start mb-4">
-                <div>
-                    <h4 class="text-xl font-bold text-gray-800">${opcion.nombre}</h4>
-                    <p class="text-sm text-gray-600">${opcion.institucion}</p>
+        <div class="bg-white rounded-xl p-4 shadow-md hover:shadow-lg transition">
+            <!-- Header compacto -->
+            <div class="flex justify-between items-start mb-3">
+                <div class="flex-1">
+                    <h4 class="text-lg font-bold text-gray-800 leading-tight">${opcion.nombre}</h4>
+                    <p class="text-xs text-gray-500">${opcion.institucion}</p>
                 </div>
-                ${opcion.destacado ? '<span class="bg-yellow-400 text-yellow-900 text-xs px-2 py-1 rounded-full font-bold">⭐ Popular</span>' : ''}
+                ${opcion.destacado ? '<span class="bg-yellow-400 text-yellow-900 text-xs px-2 py-1 rounded-full font-bold ml-2">⭐</span>' : ''}
             </div>
             
-            <div class="bg-gradient-to-br from-purple-500 to-purple-700 text-white rounded-lg p-4 mb-4">
-                <p class="text-sm opacity-80">Rendimiento anual</p>
-                <p class="text-3xl font-bold">${opcion.tasa_anual}%</p>
+            <!-- Rendimiento destacado -->
+            <div class="bg-gradient-to-br from-purple-500 to-purple-700 text-white rounded-lg p-3 mb-3 text-center">
+                <p class="text-xs opacity-80">Rendimiento anual</p>
+                <p class="text-2xl font-bold">${opcion.tasa_anual}%</p>
             </div>
             
-            <div class="space-y-2 mb-4 text-sm">
-                <div class="flex justify-between">
-                    <span class="text-gray-600">Inversión mínima:</span>
-                    <span class="font-semibold">${formatearMoneda(opcion.monto_minimo)}</span>
+            <!-- Info compacta en grid -->
+            <div class="grid grid-cols-2 gap-2 mb-3 text-xs">
+                <div class="bg-gray-50 rounded-lg p-2">
+                    <p class="text-gray-500 mb-0.5">Mínimo</p>
+                    <p class="font-bold text-gray-800">${formatearMoneda(opcion.monto_minimo)}</p>
                 </div>
-                <div class="flex justify-between">
-                    <span class="text-gray-600">Riesgo:</span>
-                    <span class="font-semibold">${getRiesgoTexto(opcion.nivel_riesgo)}</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-gray-600">Liquidez:</span>
-                    <span class="font-semibold capitalize">${opcion.liquidez}</span>
+                <div class="bg-gray-50 rounded-lg p-2">
+                    <p class="text-gray-500 mb-0.5">Riesgo</p>
+                    <p class="font-bold text-gray-800">${getRiesgoTexto(opcion.nivel_riesgo)}</p>
                 </div>
             </div>
             
-            <p class="text-sm text-gray-600 mb-4">${opcion.descripcion}</p>
-            
+            <!-- Botón CTA -->
             <button 
                 data-opcion-id="${opcion.id}"
-                class="btn-invertir w-full gradient-bg text-white py-3 rounded-lg font-semibold hover:opacity-90 transition">
-                Invertir Ahora →
+                class="btn-invertir w-full gradient-bg text-white py-2.5 rounded-lg font-semibold hover:opacity-90 transition text-sm">
+                Ver opción →
             </button>
         </div>
     `).join('');
@@ -249,10 +247,27 @@ function renderizarCards() {
 // ============================================
 
 function aplicarFiltros() {
-    const nombre = document.getElementById('filtroNombre')?.value.toLowerCase() || '';
-    const montoMin = parseFloat(document.getElementById('filtroMonto')?.value) || 0;
-    const riesgo = document.getElementById('filtroRiesgo')?.value || '';
-    const ordenar = document.getElementById('ordenarPor')?.value || 'tasa';
+    // Obtener valores de móvil o desktop según el viewport
+    const esMobile = window.innerWidth < 768;
+    const nombre = (esMobile ? 
+        document.getElementById('filtroNombre')?.value : 
+        document.getElementById('filtroNombreDesktop')?.value || document.getElementById('filtroNombre')?.value
+    )?.toLowerCase() || '';
+    
+    const montoMin = parseFloat(esMobile ? 
+        document.getElementById('filtroMonto')?.value : 
+        document.getElementById('filtroMontoDesktop')?.value || document.getElementById('filtroMonto')?.value
+    ) || 0;
+    
+    const riesgo = (esMobile ? 
+        document.getElementById('filtroRiesgo')?.value : 
+        document.getElementById('filtroRiesgoDesktop')?.value || document.getElementById('filtroRiesgo')?.value
+    ) || '';
+    
+    const ordenar = (esMobile ? 
+        document.getElementById('ordenarPor')?.value : 
+        document.getElementById('ordenarPorDesktop')?.value || document.getElementById('ordenarPor')?.value
+    ) || 'tasa';
     
     // Filtrar
     opcionesFiltradas = opcionesInversion.filter(opcion => {
@@ -276,9 +291,21 @@ function aplicarFiltros() {
         opcionesFiltradas.sort((a, b) => a.nombre.localeCompare(b.nombre));
     }
     
+    // Actualizar contador de filtros activos (móvil)
+    const filtrosActivos = (nombre ? 1 : 0) + (montoMin > 0 ? 1 : 0) + (riesgo ? 1 : 0);
+    const contador = document.getElementById('filtrosActivosCount');
+    if (contador) {
+        if (filtrosActivos > 0) {
+            contador.textContent = filtrosActivos;
+            contador.classList.remove('hidden');
+        } else {
+            contador.classList.add('hidden');
+        }
+    }
+    
     // Re-renderizar
-    const esMobile = window.innerWidth < 768;
-    if (esMobile) {
+    const esMobileRender = window.innerWidth < 768;
+    if (esMobileRender) {
         renderizarCards();
     } else {
         renderizarTabla();
@@ -286,10 +313,27 @@ function aplicarFiltros() {
 }
 
 function limpiarFiltros() {
-    document.getElementById('filtroNombre').value = '';
-    document.getElementById('filtroMonto').value = '';
-    document.getElementById('filtroRiesgo').value = '';
-    document.getElementById('ordenarPor').value = 'tasa';
+    // Limpiar ambos sets de filtros
+    ['filtroNombre', 'filtroNombreDesktop'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+    
+    ['filtroMonto', 'filtroMontoDesktop'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+    
+    ['filtroRiesgo', 'filtroRiesgoDesktop'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+    
+    ['ordenarPor', 'ordenarPorDesktop'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = 'tasa';
+    });
+    
     aplicarFiltros();
 }
 
@@ -349,8 +393,8 @@ function verDetalles(opcionId) {
 
 ${opcion.descripcion}
 
-💳 Comisión apertura: ${opcion.comision_apertura}%    ✅ SIN TILDE
-💳 Comisión manejo: ${opcion.comision_manejo}%        ✅ SIN TILDE
+💳 Comisión apertura: ${opcion.comision_apertura}%
+💳 Comisión manejo: ${opcion.comision_manejo}%
     `);
 }
 
@@ -482,11 +526,35 @@ function verMasTestimonios() {
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 Finzi cargado');
     
-    // Event listeners para filtros
+    // Toggle filtros móvil
+    const btnToggleFiltros = document.getElementById('toggleFiltros');
+    const filtrosPanel = document.getElementById('filtrosPanel');
+    const filtrosChevron = document.getElementById('filtrosChevron');
+    
+    if (btnToggleFiltros) {
+        btnToggleFiltros.addEventListener('click', function() {
+            const isHidden = filtrosPanel.classList.contains('hidden');
+            if (isHidden) {
+                filtrosPanel.classList.remove('hidden');
+                filtrosChevron.style.transform = 'rotate(180deg)';
+            } else {
+                filtrosPanel.classList.add('hidden');
+                filtrosChevron.style.transform = 'rotate(0deg)';
+            }
+        });
+    }
+    
+    // Event listeners para filtros móviles
     document.getElementById('filtroNombre')?.addEventListener('input', aplicarFiltros);
     document.getElementById('filtroMonto')?.addEventListener('change', aplicarFiltros);
     document.getElementById('filtroRiesgo')?.addEventListener('change', aplicarFiltros);
     document.getElementById('ordenarPor')?.addEventListener('change', aplicarFiltros);
+    
+    // Event listeners para filtros desktop
+    document.getElementById('filtroNombreDesktop')?.addEventListener('input', aplicarFiltros);
+    document.getElementById('filtroMontoDesktop')?.addEventListener('change', aplicarFiltros);
+    document.getElementById('filtroRiesgoDesktop')?.addEventListener('change', aplicarFiltros);
+    document.getElementById('ordenarPorDesktop')?.addEventListener('change', aplicarFiltros);
     
     // Responsive: cambiar vista según tamaño
     window.addEventListener('resize', () => {
