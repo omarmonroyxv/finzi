@@ -181,104 +181,163 @@
     </section>
 
     <!-- TRUST SIGNALS -->
-    <section class="py-6 md:py-8 bg-white border-y border-gray-200">
-        <div class="container mx-auto px-4">
-            <p class="text-center text-gray-600 mb-4 md:mb-6 text-xs md:text-sm font-medium">
-                🔒 Comparamos solo instituciones reguladas y supervisadas por:
-            </p>
+<section class="py-6 md:py-8 bg-white border-y border-gray-200">
+    <div class="container mx-auto px-4">
+        <p class="text-center text-gray-600 mb-4 md:mb-6 text-xs md:text-sm font-medium">
+            🔒 Comparamos solo instituciones reguladas y supervisadas por:
+        </p>
+        
+        <!-- Desktop: Grid normal (4 columnas) -->
+        <div class="hidden md:flex md:justify-center md:items-center md:gap-12 md:flex-wrap mb-4">
+            <!-- CNBV -->
+            <div class="text-center opacity-70 hover:opacity-100 transition">
+                <div class="bg-gray-100 rounded-lg p-4 mb-2 h-16 flex items-center justify-center">
+                    <img src="https://www.cnbv.gob.mx/Style%20Library/CNBV/images/logo-cnbv.svg" 
+                         alt="CNBV" 
+                         class="h-12"
+                         onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 40%22%3E%3Ctext x=%2250%22 y=%2220%22 text-anchor=%22middle%22 font-size=%2214%22 font-weight=%22bold%22 fill=%22%23374151%22%3ECNBV%3C/text%3E%3C/svg%3E'">
+                </div>
+                <p class="text-xs text-gray-500 font-semibold">CNBV</p>
+            </div>
             
-            <div class="flex justify-center items-center gap-4 md:gap-12 flex-wrap mb-4">
+            <!-- CONDUSEF -->
+            <div class="text-center opacity-70 hover:opacity-100 transition">
+                <div class="bg-gray-100 rounded-lg p-4 mb-2 h-16 flex items-center justify-center">
+                    <img src="https://www.condusef.gob.mx/images/logo-condusef.svg" 
+                         alt="CONDUSEF" 
+                         class="h-12"
+                         onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 40%22%3E%3Ctext x=%2250%22 y=%2220%22 text-anchor=%22middle%22 font-size=%2212%22 font-weight=%22bold%22 fill=%22%23374151%22%3ECONDUSEF%3C/text%3E%3C/svg%3E'">
+                </div>
+                <p class="text-xs text-gray-500 font-semibold">CONDUSEF</p>
+            </div>
+            
+            <!-- Banxico -->
+            <div class="text-center opacity-70 hover:opacity-100 transition">
+                <div class="bg-gray-100 rounded-lg p-4 mb-2 h-16 flex items-center justify-center">
+                    <img src="https://www.banxico.org.mx/PublishingImages/logo-banxico.svg" 
+                         alt="Banco de México" 
+                         class="h-12"
+                         onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 40%22%3E%3Ctext x=%2250%22 y=%2220%22 text-anchor=%22middle%22 font-size=%2212%22 font-weight=%22bold%22 fill=%22%23374151%22%3EBanxico%3C/text%3E%3C/svg%3E'">
+                </div>
+                <p class="text-xs text-gray-500 font-semibold">Banxico</p>
+            </div>
+            
+            <!-- IPAB -->
+            <div class="text-center opacity-70 hover:opacity-100 transition">
+                <div class="bg-gray-100 rounded-lg p-4 mb-2 h-16 flex items-center justify-center">
+                    <img src="https://www.ipab.org.mx/Style%20Library/ipab/images/logo-ipab.svg" 
+                         alt="IPAB" 
+                         class="h-12"
+                         onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 40%22%3E%3Ctext x=%2250%22 y=%2220%22 text-anchor=%22middle%22 font-size=%2214%22 font-weight=%22bold%22 fill=%22%23374151%22%3EIPAB%3C/text%3E%3C/svg%3E'">
+                </div>
+                <p class="text-xs text-gray-500 font-semibold">IPAB</p>
+            </div>
+        </div>
+        
+        <!-- Mobile: Slider horizontal (scroll suave) -->
+        <div class="md:hidden overflow-x-auto scrollbar-hide pb-2">
+            <div class="flex gap-4 px-2" style="min-width: min-content;">
                 <!-- CNBV -->
-                <div class="text-center opacity-70 hover:opacity-100 transition">
-                    <div class="bg-gray-100 rounded-lg p-2 md:p-4 mb-2 h-12 md:h-16 flex items-center justify-center">
+                <div class="text-center flex-shrink-0">
+                    <div class="bg-gray-100 rounded-lg p-3 mb-2 w-24 h-20 flex items-center justify-center">
                         <img src="https://www.cnbv.gob.mx/Style%20Library/CNBV/images/logo-cnbv.svg" 
                              alt="CNBV" 
-                             class="h-8 md:h-12"
+                             class="h-10 max-w-full"
                              onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 40%22%3E%3Ctext x=%2250%22 y=%2220%22 text-anchor=%22middle%22 font-size=%2214%22 font-weight=%22bold%22 fill=%22%23374151%22%3ECNBV%3C/text%3E%3C/svg%3E'">
                     </div>
-                    <p class="text-xs text-gray-500 font-semibold">CNBV</p>
+                    <p class="text-xs text-gray-700 font-semibold">CNBV</p>
                 </div>
                 
                 <!-- CONDUSEF -->
-                <div class="text-center opacity-70 hover:opacity-100 transition">
-                    <div class="bg-gray-100 rounded-lg p-2 md:p-4 mb-2 h-12 md:h-16 flex items-center justify-center">
+                <div class="text-center flex-shrink-0">
+                    <div class="bg-gray-100 rounded-lg p-3 mb-2 w-24 h-20 flex items-center justify-center">
                         <img src="https://www.condusef.gob.mx/images/logo-condusef.svg" 
                              alt="CONDUSEF" 
-                             class="h-8 md:h-12"
-                             onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 40%22%3E%3Ctext x=%2250%22 y=%2220%22 text-anchor=%22middle%22 font-size=%2212%22 font-weight=%22bold%22 fill=%22%23374151%22%3ECONDUSEF%3C/text%3E%3C/svg%3E'">
+                             class="h-10 max-w-full"
+                             onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 40%22%3E%3Ctext x=%2250%22 y=%2220%22 text-anchor=%22middle%22 font-size=%2211%22 font-weight=%22bold%22 fill=%22%23374151%22%3ECONDUSEF%3C/text%3E%3C/svg%3E'">
                     </div>
-                    <p class="text-xs text-gray-500 font-semibold">CONDUSEF</p>
+                    <p class="text-xs text-gray-700 font-semibold">CONDUSEF</p>
                 </div>
                 
                 <!-- Banxico -->
-                <div class="text-center opacity-70 hover:opacity-100 transition">
-                    <div class="bg-gray-100 rounded-lg p-2 md:p-4 mb-2 h-12 md:h-16 flex items-center justify-center">
+                <div class="text-center flex-shrink-0">
+                    <div class="bg-gray-100 rounded-lg p-3 mb-2 w-24 h-20 flex items-center justify-center">
                         <img src="https://www.banxico.org.mx/PublishingImages/logo-banxico.svg" 
                              alt="Banco de México" 
-                             class="h-8 md:h-12"
+                             class="h-10 max-w-full"
                              onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 40%22%3E%3Ctext x=%2250%22 y=%2220%22 text-anchor=%22middle%22 font-size=%2212%22 font-weight=%22bold%22 fill=%22%23374151%22%3EBanxico%3C/text%3E%3C/svg%3E'">
                     </div>
-                    <p class="text-xs text-gray-500 font-semibold">Banxico</p>
+                    <p class="text-xs text-gray-700 font-semibold">Banxico</p>
                 </div>
                 
                 <!-- IPAB -->
-                <div class="text-center opacity-70 hover:opacity-100 transition">
-                    <div class="bg-gray-100 rounded-lg p-2 md:p-4 mb-2 h-12 md:h-16 flex items-center justify-center">
+                <div class="text-center flex-shrink-0">
+                    <div class="bg-gray-100 rounded-lg p-3 mb-2 w-24 h-20 flex items-center justify-center">
                         <img src="https://www.ipab.org.mx/Style%20Library/ipab/images/logo-ipab.svg" 
                              alt="IPAB" 
-                             class="h-8 md:h-12"
+                             class="h-10 max-w-full"
                              onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 40%22%3E%3Ctext x=%2250%22 y=%2220%22 text-anchor=%22middle%22 font-size=%2214%22 font-weight=%22bold%22 fill=%22%23374151%22%3EIPAB%3C/text%3E%3C/svg%3E'">
                     </div>
-                    <p class="text-xs text-gray-500 font-semibold">IPAB</p>
+                    <p class="text-xs text-gray-700 font-semibold">IPAB</p>
                 </div>
             </div>
-            
-            <p class="text-center text-xs text-gray-400 max-w-2xl mx-auto px-4">
-                Todas las instituciones que comparamos están supervisadas por autoridades financieras mexicanas. 
-                Tu dinero está protegido por ley.
-            </p>
         </div>
-    </section>
+        
+        <p class="text-center text-xs text-gray-400 max-w-2xl mx-auto px-4 mt-4">
+            Todas las instituciones que comparamos están supervisadas por autoridades financieras mexicanas. 
+            Tu dinero está protegido por ley.
+        </p>
+    </div>
+</section>
 
     <!-- ESTADÍSTICAS -->
-    <section class="py-6 md:py-12 bg-gradient-to-br from-purple-50 to-blue-50">
-        <div class="container mx-auto px-4">
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-8 text-center">
-                <!-- Stat 1 -->
-                <div class="animate-slide-in bg-white/50 backdrop-blur-sm rounded-lg p-3 md:p-0 md:bg-transparent">
-                    <div class="text-2xl md:text-5xl font-bold gradient-text mb-1 md:mb-2">
-                        <span id="statUsuarios" data-target="15247">0</span>+
-                    </div>
-                    <p class="text-gray-600 font-medium text-xs md:text-base leading-tight">Usuarios<br class="md:hidden"> confían</p>
+<section class="py-6 md:py-12 bg-gradient-to-br from-purple-50 to-blue-50">
+    <div class="container mx-auto px-4">
+        <!-- Grid: 2 columnas en móvil, 4 en desktop -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-8">
+            <!-- Stat 1 -->
+            <div class="bg-white rounded-xl p-4 shadow-lg text-center transform transition hover:scale-105">
+                <div class="text-3xl md:text-5xl font-bold gradient-text mb-2">
+                    <span id="statUsuarios" data-target="15247">0</span>+
                 </div>
-                
-                <!-- Stat 2 -->
-                <div class="animate-slide-in bg-white/50 backdrop-blur-sm rounded-lg p-3 md:p-0 md:bg-transparent" style="animation-delay: 0.1s;">
-                    <div class="text-2xl md:text-5xl font-bold text-green-600 mb-1 md:mb-2">
-                        $<span id="statMonto" data-target="87.5">0</span>M
-                    </div>
-                    <p class="text-gray-600 font-medium text-xs md:text-base leading-tight">Inversiones<br class="md:hidden"> comparadas</p>
+                <p class="text-gray-600 font-semibold text-xs md:text-base">
+                    Usuarios confían
+                </p>
+            </div>
+            
+            <!-- Stat 2 -->
+            <div class="bg-white rounded-xl p-4 shadow-lg text-center transform transition hover:scale-105">
+                <div class="text-3xl md:text-5xl font-bold text-green-600 mb-2">
+                    $<span id="statMonto" data-target="87.5">0</span>M
                 </div>
-                
-                <!-- Stat 3 -->
-                <div class="animate-slide-in bg-white/50 backdrop-blur-sm rounded-lg p-3 md:p-0 md:bg-transparent" style="animation-delay: 0.2s;">
-                    <div class="text-2xl md:text-5xl font-bold text-purple-600 mb-1 md:mb-2">
-                        <span id="statInstituciones" data-target="12">0</span>
-                    </div>
-                    <p class="text-gray-600 font-medium text-xs md:text-base leading-tight">Instituciones<br class="md:hidden"> reguladas</p>
+                <p class="text-gray-600 font-semibold text-xs md:text-base">
+                    Inversiones comparadas
+                </p>
+            </div>
+            
+            <!-- Stat 3 -->
+            <div class="bg-white rounded-xl p-4 shadow-lg text-center transform transition hover:scale-105">
+                <div class="text-3xl md:text-5xl font-bold text-purple-600 mb-2">
+                    <span id="statInstituciones" data-target="12">0</span>
                 </div>
-                
-                <!-- Stat 4 -->
-                <div class="animate-slide-in bg-white/50 backdrop-blur-sm rounded-lg p-3 md:p-0 md:bg-transparent" style="animation-delay: 0.3s;">
-                    <div class="text-2xl md:text-5xl font-bold text-yellow-600 mb-1 md:mb-2">
-                        <span id="statRating" data-target="4.9">0</span>
-                        <span class="text-lg md:text-2xl">⭐</span>
-                    </div>
-                    <p class="text-gray-600 font-medium text-xs md:text-base leading-tight">Calificación<br class="md:hidden"> promedio</p>
+                <p class="text-gray-600 font-semibold text-xs md:text-base">
+                    Instituciones reguladas
+                </p>
+            </div>
+            
+            <!-- Stat 4 -->
+            <div class="bg-white rounded-xl p-4 shadow-lg text-center transform transition hover:scale-105">
+                <div class="text-3xl md:text-5xl font-bold text-yellow-600 mb-2">
+                    <span id="statRating" data-target="4.9">0</span>
+                    <span class="text-xl md:text-2xl">⭐</span>
                 </div>
+                <p class="text-gray-600 font-semibold text-xs md:text-base">
+                    Calificación promedio
+                </p>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
     <!-- GARANTÍAS -->
     <section class="py-4 md:py-8 bg-white">
