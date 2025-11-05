@@ -109,11 +109,13 @@
                 padding: 0.75rem 1.5rem;
             }
             
-            /* Stats grid móvil */
-            .grid {
-                grid-template-columns: 1fr !important;
-                gap: 1rem !important;
+            /* Stats grid móvil - NO forzar 1 columna */
+            @media (max-width: 640px) {
+                .stats-grid {
+                gap: 0.75rem;
+                }
             }
+            
             
             /* Prevenir overflow horizontal */
             img, svg, video {
